@@ -27,6 +27,7 @@ public class LoginClient {
 
             // send user name to server
             output.println( userName );
+            //output.println( Integer.MAX_VALUE + 1 );
 
             // prompt user for password
             String password = JOptionPane.showInputDialog( null,"Enter Password:" );
