@@ -1,3 +1,4 @@
+package Servidor;
 import java.io.*;
 import java.net.*;
 
@@ -33,8 +34,8 @@ public class LoginServerSocket {
                 PrintWriter output = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
                 String userName = input.readLine();
                 String password = input.readLine();
-
-                if (userName.equals(CORRECT_USER_NAME)&&password.equals(CORRECT_PASSWORD))
+                
+                if (userName.equals(CORRECT_USER_NAME) && password.equals(CORRECT_PASSWORD))
                 {
                     output.println("Welcome, " + userName);
                 } else {
