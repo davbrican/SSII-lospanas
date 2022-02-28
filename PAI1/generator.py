@@ -5,11 +5,11 @@ from fpdf import FPDF
 from docx import Document
 from docx.shared import Inches
 
-filesNumber = int(int(input("Número de archivos: ")) / 5)
+filesNumber = int(int(input("Número de archivos (mínimo 5): ")) / 5)
 
 for i in range(filesNumber):
-    with open("./files/csv"+str(i)+".csv", "w") as f:
-        writer = csv.writer(f)
+    with open("./files/csv"+str(i)+".csv", "w", newline='') as f:
+        writer = csv.writer(f, delimiter=',', quoting=csv.QUOTE_MINIMAL)
         writer.writerow(["file", "yepa"])
         writer.writerow([str(i),"quepasagente"])
         
@@ -46,7 +46,7 @@ for i in range(filesNumber):
 
     document.add_heading('Document Title', 0)
 
-    p = document.add_paragraph('This is the docx number '+str(i))
+    p = document.add_paragraph('This is the docx number '+str(i)+' ')
     p.add_run('bold').bold = True
     p.add_run(' and some ')
     p.add_run('italic.').italic = True
