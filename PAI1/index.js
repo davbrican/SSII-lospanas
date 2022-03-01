@@ -149,7 +149,8 @@ const main = async () => {
     var interval2 = setInterval(function () {
         console.log("\n\nChecking integrity of files from " + filesPath);
         var data = [0,0];
-        filesArray.forEach(file => {
+        for (let i = 0; i < filesArray.length; i++) {
+            const file = filesArray[i];
             var result = checkIntegrity(file);
             result.then(res => { 
                 if (res) {
@@ -157,9 +158,11 @@ const main = async () => {
                 } else {
                     data[1]++;
                 }
+                if (data[0] + data[1] == filesArray.length) {
+                    console.log("\n\nIntegrity check finished with the following results: \n" + data[0] + " files are OK\n" + data[1] + " files are corrupted\n");
+                }
             });
-        });
-        console.log("\n\nIntegrity check finished with the following results: \n" + data[0] + " files are OK\n" + data[1] + " files are corrupted\n");
+        }
     }, 1000);
     
 
