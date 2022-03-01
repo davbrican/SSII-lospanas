@@ -1,8 +1,14 @@
 const crypto = require('crypto');
 const fs = require('fs');
+var nodemailer = require('nodemailer');
 
+const filesPath = './files/';
+var nonces = []
 
-const filesPath = './files/'
+// Variables que establece el usuario al ejecutar el script
+const sendMailYesNo = true;
+const hashType = ['sha256'];
+const secret = 'GfG';
 
 // Function to generate random number
 function randomNumber(min, max) {
@@ -12,10 +18,22 @@ function randomNumber(min, max) {
 //  Function to create hash
 function createHash(file) {
     const fileBuffer = fs.readFileSync(file);
-    const hashSum = crypto.createHash('sha256');
+    const hashSum = crypto.createHash(hashType[0]);
     hashSum.update(fileBuffer);
 
     const hex = hashSum.digest('hex');
+
+    return hex;
+}
+
+function createHmac(file) {
+    const fileBuffer = fs.readFileSync(file);
+    const hmac = crypto.createHmac(hashType[0], secret);
+    hmac.update(fileBuffer);
+
+    const hex = hmac.digest('hex');
+
+    let nonce = crypto.randomBytes(16).toString('hex');
 
     return hex;
 }
@@ -38,14 +56,33 @@ async function storeFiles() {
     })
 }
 
+function replaceContents(file, replacement, cb) {
+
+    fs.readFile(replacement, (err, contents) => {
+        if (err) return cb(err);
+        fs.writeFile(file, contents, cb);
+    });
+    console.log("Restoring contents of file: " + file);
+
+}
+
 // Function to check file integrity
-const checkIntegrity = (file) => {
+const checkIntegrity = async (file) => {
     const hash = createHash(filesPath+file.path)
     if (hash === file.hash) {
         console.log(`${file.path} is OK`);
+        return true;
     } else {
         console.log(`${file.path} is corrupted`);
-        // TODO Restore file
+        if(sendMailYesNo) {
+            //sendMail();
+        }
+        await replaceContents(filesPath + file.path, './backupFiles/' + file.path, err => {
+            if (err) {
+                console.log(err);
+            }
+        });
+        return false;
     }
 }
 
@@ -61,7 +98,7 @@ function corruptRandomFile(file) {
                 if (err) {
                     console.log(err);
                 } else {
-                    console.log(`${file} is corrupted`);
+                    console.log(`${file} has been corrupted`);
                 }
             });
         }
@@ -69,38 +106,67 @@ function corruptRandomFile(file) {
 }
 
 
+async function sendMail() {
+    let transporter = nodemailer.createTransport({
+        service: 'mailgun',
+        auth: {
+          user: process.env.EMAIL,
+          pass: process.env.PASSWORD,
+        },
+      });
+
+    
+    let info = await transporter.sendMail({
+        from: '"SSII-Group-5" <no-reply@ssii.com>', // sender address
+        to: "dbrincau@us.es", // list of receivers
+        subject: "Corrupted file", // Subject line
+        text: "A file has been detected to be corrupted while checking system files integrity.", // plain text body
+        html: `
+        <h1>Beware!</h1>
+        <br>
+        <p>One of your files is corrupted.</p>`, // html body
+      }, );
+}
 
 
 //  main function
 const main = async () => {
     // Create an array of files
     const filesArray = await storeFiles();
-    
+
+
+    // Corrupt a random file each randomTime seconds
+    var interval = setInterval(function () {
+        console.log("\n\nCorrupting files from " + filesPath);
+        var randomFilesNumber = randomNumber(1, filesArray.length);
+        for (let i = 0; i < randomFilesNumber; i++) {
+            var file = filesPath + filesArray[randomNumber(0, filesArray.length)].path;
+            corruptRandomFile(file);
+        }
+    }, 1000);
 
     // Check integrity of each file each second
-    var interval = setInterval(function () {
-        console.log("\n\nChecking integrity of file: " + filesPath);
+    var interval2 = setInterval(function () {
+        console.log("\n\nChecking integrity of files from " + filesPath);
+        var data = [0,0];
         filesArray.forEach(file => {
-            checkIntegrity(file);
-        })
+            var result = checkIntegrity(file);
+            result.then(res => { 
+                if (res) {
+                    data[0]++;
+                } else {
+                    data[1]++;
+                }
+            });
+        });
+        console.log("\n\nIntegrity check finished with the following results: \n" + data[0] + " files are OK\n" + data[1] + " files are corrupted\n");
     }, 1000);
     
-    // Random time for interval2
-    var randomTime = randomNumber(1500, 3000);
-    // Corrupt a random file each randomTime seconds
-    var interval2 = setInterval(function () {
-        var file = filesPath + filesArray[randomNumber(0, filesArray.length)].path;
-        console.log("\n\nCorrupting file: " + file);
-        corruptRandomFile(file);
-    }, randomTime);
 
 
     // Stop both intervals after 10 seconds
     setTimeout(() => {
         clearInterval(interval);
-    }, 10000);
-    
-    setTimeout(() => {
         clearInterval(interval2);
     }, 10000);
 }

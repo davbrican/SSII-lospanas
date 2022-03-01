@@ -1,0 +1,11 @@
+.csv
+.txt
+.pdf
+.docx
+.png
+.jpg
+.jpeg
+.gif
+node_modules
+/backupFiles
+.env
