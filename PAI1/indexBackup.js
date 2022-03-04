@@ -54,7 +54,7 @@ function createHmac(file) {
 
 //  Function to store files in an array
 async function storeFiles() {
-    let filesMap = new Map();
+    let filesArr = [];
     return new Promise((resolve, reject) => {
         fs.readdir(filesPath, (err, files) => {
             if (err) {
@@ -62,9 +62,9 @@ async function storeFiles() {
                 return reject(err);
             } else {
                 files.forEach(file => {
-                    filesMap.set(file, createHash(filesPath + file));
+                    filesArr.push({"path": file, "hash": createHash(filesPath + file)});
                 });
-                return resolve(filesMap);
+                return resolve(filesArr);
             }
         });
     })
@@ -201,4 +201,4 @@ const main = async () => {
 }
 
 
-//main(); // TODO Crear TXT con la información de la consola con timestamp y otro archivo CSV con información numérica de lo que ocurre (Nº archivos OK, Nº de archivos corruptos, Nº de archivos corruptos, etc.)
+main(); // TODO Crear TXT con la información de la consola con timestamp y otro archivo CSV con información numérica de lo que ocurre (Nº archivos OK, Nº de archivos corruptos, Nº de archivos corruptos, etc.)
