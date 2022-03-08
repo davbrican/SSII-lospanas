@@ -8,11 +8,16 @@ const createCSV = require('csv-writer').createObjectCsvWriter;
 
 const filesPath = './files/';
 var nonces = []
+var challenges = {
+    "1": function chal (file) { return file + "primero" },
+    "2": function chal (file) { return file + "segundo" },
+    "3": function chal (file) { return file + "tercero" }
+}
 
 // Variables que establece el usuario al ejecutar el script
 const sendMailYesNo = true;
-const hashType = ['sha256'];
-const secret = 'GfG';
+const hashType = ['sha256', 'sha512', 'sha384'];
+const secret = 'clave-simetrica-secreta';
 
 // Function to generate random number
 function randomNumber(min, max) {
@@ -20,14 +25,22 @@ function randomNumber(min, max) {
 }
 
 //  Function to create hash
-function createHash(file) {
+function createHash(file, nonce) {
     const fileBuffer = fs.readFileSync(file);
     const hashSum = crypto.createHash(hashType[0]);
+
+    if(nonce){
+        fileBuffer = addNonceToFile(fileBuffer,nonce);
+    }
     hashSum.update(fileBuffer);
 
     const hex = hashSum.digest('hex');
 
     return hex;
+}
+
+function addNonceToFile(file,nonce) {
+    return file+nonce;
 }
 
 // Function to create Nonce
@@ -42,15 +55,14 @@ function createNonce() {
 }
 
 // Function to create HMAC
-function createHmac(file) {
-    let nonce = createNonce();
+function createHmac(file, token) {
 
     const fileBuffer = fs.readFileSync(file);
+    const challenge = challenges[token](fileBuffer);
+
     const hmac = crypto.createHmac(hashType[0], secret);
     
-    hmac.update(fileBuffer);
-    hmac.update(nonce);
-    hmac.update("SSII");
+    hmac.update(challenge);
 
     const hex = hmac.digest('hex');
     return hex;
@@ -200,11 +212,31 @@ function createCSVReport(okD, corD) {
     .then(() => { console.log("Report created"); });
 }
 
-
+function checkHmacClient(file,hmac,token){
+    const clientHmac = createHmac(file,token);
+    if(clientHmac === hmac){
+        return true;
+    } else {
+        return false;
+    }
+}
 
 // Function client send file to server
-function proofOfPossesion(file,hash,secret) {
-    //if(hash === file)
+function proofOfPossesion(file,fileHash,token,nonce) {
+    if(nonces.includes(nonce)){
+        console.log("Nonce already used");
+        return {success:false,message:"Nonce already used"};
+    }
+    const hash = createHash(file,nonce);
+    if(fileHash === hash){
+        console.log(`${file} is OK`);
+        hmac = createHmac(file,token);
+        const clientCheck = checkHmacClient(file,hmac,token)
+        if(clientCheck) return {success:true,hmac:hmac};
+        return {success:false,message:"Client HMAC is not OK"};
+    } else {
+        return {success:false,message:"Hash is not correct"};
+    }
 }
 
 
@@ -246,10 +278,18 @@ const main = async () => {
                     createReport("./checkingReport.txt", textInterval2);
                 }
             });
-
-            const fileHash = createHash(filesPath + file);
-            const fileFullPath = filesPath + file;
-            const pop = proofOfPossesion(fileFullPath,fileHash,secret);
+            let nonce = createNonce();
+            const fileHash = createHash(filesPath + file.path,nonce);
+            const fileFullPath = filesPath + file.path;
+            
+            const pop = proofOfPossesion(fileFullPath,fileHash,token,nonce);
+            if(pop.success){
+                console.log("HMAC is OK");
+                console.log("HMAC: " + pop.hmac);
+            }else {
+                console.log("HMAC is not OK");
+                console.log(pop.message);
+            }
         }
     }, 1000);
     
