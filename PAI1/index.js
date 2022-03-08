@@ -262,7 +262,7 @@ async function serverSimulation() {
         //console.log("\n\nCorrupting files from " + filesPath);
         var textInterval1 = "\n\nCorrupting files from " + filesPath;
         createReport("corruptReport.txt", textInterval1);
-        const randomFilesNumber = randomNumber(1, keysArray.length-1);
+        const randomFilesNumber = randomNumber(1, Math.round(keysArray.length/3));
         for (let i = 0; i < randomFilesNumber; i++) {
             const file = filesPath + keysArray[randomNumber(0, keysArray.length-1)];
             await new Promise(resolve => setTimeout(resolve, 10));
