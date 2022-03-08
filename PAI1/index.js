@@ -333,13 +333,9 @@ const main = async () => {
             if (sendMailYesNoInput == "S") rl.question('¿Quieres que se te notifique por correo si se encuentra un archivo corrupto?', function (correoInput) {
                 sendMailYesNo = true;
                 correoDst = correoInput;
-                console.log(`Ah weno, que you choose ${hashInput} hash and you want to send a mail to ${correoDst}`);
                 rl.close();
             });
-            else {
-                console.log(`Ah weno, que you choose ${hashInput} hash and you want to send a mail to ${correoDst}`);
-                rl.close();
-            }
+            else rl.close();
         });
     });
     
