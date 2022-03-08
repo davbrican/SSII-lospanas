@@ -9,9 +9,11 @@ const createCSV = require('csv-writer').createObjectCsvWriter;
 const filesPath = './files/';
 var nonces = []
 var challenges = {
-    "1": function chal (file) { return file + "primero" },
-    "2": function chal (file) { return file + "segundo" },
-    "3": function chal (file) { return file + "tercero" }
+    "1": (file) => { return file + "primero" },
+    "2": (file) => { return file + "segundo" },
+    "3": (file) =>  { return file + "tercero" },
+    "4": (file) =>  { return file + "cuarto" },
+    "5": (file) =>  { return file + "quinto" }
 }
 
 // Variables que establece el usuario al ejecutar el script
@@ -21,12 +23,12 @@ const secret = 'clave-simetrica-secreta';
 
 // Function to generate random number
 function randomNumber(min, max) {
-    return Math.floor(Math.random() * (max - min));
+    return Math.round(Math.random() * (max - min) + min);
 }
 
 //  Function to create hash
 function createHash(file, nonce) {
-    const fileBuffer = fs.readFileSync(file);
+    let fileBuffer = fs.readFileSync(file);
     const hashSum = crypto.createHash(hashType[0]);
 
     if(nonce){
@@ -49,14 +51,12 @@ function createNonce() {
     if (nonces.includes(nonce)) {
         return createNonce();
     } else {
-        nonces.push(nonce);
         return nonce;
     }
 }
 
 // Function to create HMAC
 function createHmac(file, token) {
-
     const fileBuffer = fs.readFileSync(file);
     const challenge = challenges[token](fileBuffer);
 
@@ -110,7 +110,7 @@ const checkIntegrity = async (file) => {
         console.log(`${file.path} is corrupted`);
         text += `\n${file.path} is corrupted`;
         if(sendMailYesNo) {
-            sendMail();
+            //sendMail();
         }
         // Restore file
         var restoring = await replaceContents(filesPath + file.path, './backupFiles/' + file.path, err => {
@@ -197,17 +197,9 @@ function createReport(reportFile, content) {
 }
 
 // Function to create a report of the system
-function createCSVReport(okD, corD) {
-    const csv = createCSV({
-        path: "dataReport.csv",
-        header: [
-            {id: "ok", title: "OK"},
-            {id: "cor", title: "CORRUPTED"}
-        ]
-    });
-
+function createCSVReport(csv, index, okD, corD) {
     csv.writeRecords([
-        { ok: okD, cor: corD }
+        { id: index, ok: okD, cor: corD }
     ])
     .then(() => { console.log("Report created"); });
 }
@@ -229,12 +221,14 @@ function proofOfPossesion(file,fileHash,token,nonce) {
     }
     const hash = createHash(file,nonce);
     if(fileHash === hash){
+        nonces.push(nonce);
         console.log(`${file} is OK`);
         hmac = createHmac(file,token);
         const clientCheck = checkHmacClient(file,hmac,token)
         if(clientCheck) return {success:true,hmac:hmac};
         return {success:false,message:"Client HMAC is not OK"};
     } else {
+        nonces.push(nonce);
         return {success:false,message:"Hash is not correct"};
     }
 }
@@ -245,6 +239,16 @@ const main = async () => {
     // Create an array of files
     const filesMap = await storeFiles();
     const keysArray = Array.from(filesMap.keys());
+    
+    var csv = createCSV({
+        path: "dataReport.csv",
+        append: true,
+        header: [
+            {id: "id", title: "ID"},
+            {id: "ok", title: "OK"},
+            {id: "cor", title: "CORRUPTED"}
+        ]
+    });
 
     createReport("./corruptReport.txt", "CORRUPT FILES REPORT");
     createReport("./checkingReport.txt", "CHECKING REPORT");
@@ -260,6 +264,7 @@ const main = async () => {
         }
     }, 995);
 
+    var index = 1;
     // Check integrity of each file each second
     let interval2 = setInterval(function () {
         console.log("\n\nChecking integrity of files from " + filesPath);
@@ -272,17 +277,20 @@ const main = async () => {
                 res[0] ? data[0]++ : data[1]++;
                 textInterval2 += res[1];
                 if (data[0] + data[1] == keysArray.length) {
-                    createCSVReport(data[0], data[1]);
+                    createCSVReport(csv, index, data[0], data[1]);
+                    index++;
                     console.log("\n\nIntegrity check finished with the following results: \n" + data[0] + " files are OK\n" + data[1] + " files are corrupted\n");
                     textInterval2 += "\n\nIntegrity check finished with the following results: \n" + data[0] + " files are OK\n" + data[1] + " files are corrupted\n";
                     createReport("./checkingReport.txt", textInterval2);
                 }
             });
+
             let nonce = createNonce();
-            const fileHash = createHash(filesPath + file.path,nonce);
-            const fileFullPath = filesPath + file.path;
-            
-            const pop = proofOfPossesion(fileFullPath,fileHash,token,nonce);
+            const fileHash = createHash(filesPath + file,nonce);
+            const fileFullPath = filesPath + file;
+
+
+            const pop = proofOfPossesion(fileFullPath,fileHash,""+3,nonce);
             if(pop.success){
                 console.log("HMAC is OK");
                 console.log("HMAC: " + pop.hmac);
