@@ -230,7 +230,7 @@ function proofOfPossesion(file,fileHash,token,nonce) {
         hmac = createHmac(file,token);
         const clientCheck = checkHmacClient(file,hmac,token)
         if(clientCheck) return {success:true,hmac:hmac};
-        return {success:false,message:"Client HMAC is not OK"};
+        return {success:false,message:"Client HMAC is different"};
     } else {
         nonces.push(nonce);
         return {success:false,message:"Hash is not correct"};
