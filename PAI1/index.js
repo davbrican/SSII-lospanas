@@ -1,6 +1,8 @@
 const crypto = require('crypto');
 const fs = require('fs');
 var nodemailer = require('nodemailer');
+const { send, env } = require('process');
+require('dotenv').config();
 
 const filesPath = './files/';
 var nonces = []
@@ -91,7 +93,7 @@ const checkIntegrity = async (file) => {
     } else {
         console.log(`${file.path} is corrupted`);
         if(sendMailYesNo) {
-            //sendMail();
+            sendMail();
         }
         // Restore file
         await replaceContents(filesPath + file.path, './backupFiles/' + file.path, err => {
@@ -125,24 +127,33 @@ function corruptRandomFile(file) {
 
 async function sendMail() {
     let transporter = nodemailer.createTransport({
-        service: 'mailgun',
+        host: 'smtp-mail.outlook.com',
+        port: 587,
         auth: {
-          user: process.env.EMAIL,
-          pass: process.env.PASSWORD,
-        },
+            user: process.env.EMAIL,
+            pass: process.env.PASSWORD
+        }
       });
 
     
-    let info = await transporter.sendMail({
-        from: '"SSII-Group-5" <no-reply@ssii.com>', // sender address
-        to: "dbrincau@us.es", // list of receivers
+    let mailOptions = {
+        from: 'david.brincau@hotmail.com', // sender address
+        to: process.env.TO_MAIL, // list of receivers
         subject: "Corrupted file", // Subject line
         text: "A file has been detected to be corrupted while checking system files integrity.", // plain text body
         html: `
         <h1>Beware!</h1>
         <br>
         <p>One of your files is corrupted.</p>`, // html body
-      });
+      };
+      
+    console.log("Sending mail...");
+    transporter.sendMail(mailOptions, function(error, info){
+        if (error) {
+            return console.log(error);
+        }
+        console.log('Message sent: %s', info.messageId);
+    });
 }
 
 
@@ -151,7 +162,7 @@ async function sendMail() {
 
 // Function client send file to server
 function proofOfPossesion(file,hash,secret) {
-    //if(hash === file)
+    //
 }
 
 
@@ -201,4 +212,4 @@ const main = async () => {
 }
 
 
-//main(); // TODO Crear TXT con la información de la consola con timestamp y otro archivo CSV con información numérica de lo que ocurre (Nº archivos OK, Nº de archivos corruptos, Nº de archivos corruptos, etc.)
+main();
