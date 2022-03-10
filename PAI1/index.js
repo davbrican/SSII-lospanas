@@ -184,17 +184,11 @@ async function sendMail() {
 // Function to create a report
 function createReport(reportFile, content) {
     reportFile = "./Reports/" + reportFile;
-    fs.readFile(reportFile, (err, data) => {
+    fs.appendFile(reportFile, "\n"+content, (err) => {
         if (err) {
             //console.log(err);
         } else {
-            fs.writeFile(reportFile, data + '\n' + content, (err) => {
-                if (err) {
-                    //console.log(err);
-                } else {
-                    //console.log("\nReport created");
-                }
-            });
+            //console.log("Report created");
         }
     });
 }
@@ -218,7 +212,7 @@ function checkHmacClient(file,hmac,token){
 }
 
 // Function client send file to server
-function proofOfPossesion(file,fileHash,token,nonce) {
+function proofOfPossesion(file,fileHash,token,nonce,wrongChallenge) {
     if(nonces.includes(nonce)){
         //console.log("Nonce already used");
         return {success:false,message:"Nonce already used"};
@@ -227,8 +221,9 @@ function proofOfPossesion(file,fileHash,token,nonce) {
     if(fileHash === hash){
         nonces.push(nonce);
         //console.log(`${file} is OK`);
-        hmac = createHmac(file,token);
-        const clientCheck = checkHmacClient(file,hmac,token)
+        hmac = createHmac(file,token+"");
+        if (wrongChallenge) token = (token%5)+1;
+        const clientCheck = checkHmacClient(file,hmac,token+"")
         if(clientCheck) return {success:true,hmac:hmac};
         return {success:false,message:"Client HMAC is different"};
     } else {
@@ -262,13 +257,13 @@ async function serverSimulation() {
         //console.log("\n\nCorrupting files from " + filesPath);
         var textInterval1 = "\n\nCorrupting files from " + filesPath;
         createReport("corruptReport.txt", textInterval1);
-        const randomFilesNumber = randomNumber(1, Math.round(keysArray.length/3));
+        const randomFilesNumber = randomNumber(1, Math.round(keysArray.length/10));
         for (let i = 0; i < randomFilesNumber; i++) {
             const file = filesPath + keysArray[randomNumber(0, keysArray.length-1)];
             await new Promise(resolve => setTimeout(resolve, 10));
             corruptRandomFile(file);
         }
-    }, 1000);
+    }, 5000);
 
     var index = 1;
     // Check integrity of each file each second
@@ -291,24 +286,43 @@ async function serverSimulation() {
                 }
             });
 
+            
             let nonce = createNonce();
+            var randomBehaviour = Math.random();
+            // The 5% of the times, the proof of possesion will fail due to the nonce is already used
+            if (randomBehaviour < 0.05) {
+                nonces.push(nonce);
+            }
+
             const fileHash = createHash(filesPath + file,nonce);
             const fileFullPath = filesPath + file;
-            await new Promise(resolve => setTimeout(resolve, 10));
+            // The 5% of the times, the proof of possesion will fail due to the file is not the same
+            if (0.05 <= randomBehaviour < 0.1) {
+                corruptRandomFile(file);
+            }
+            
+            await new Promise(resolve => setTimeout(resolve, 50));
             createReport("proofOfPossesionReport.txt", `\n\nFile: ${fileFullPath}\nNonce: ${nonce}\nHash: ${fileHash}`);
 
-            const pop = proofOfPossesion(fileFullPath,fileHash,""+3,nonce);
+            var token = randomNumber(1, 5);
+            var wrongChallenge = false;
+            // The 5% of the times, the proof of possesion will fail due to the file is not the same
+            if (0.1 <= randomBehaviour < 0.15) {
+                wrongChallenge = true;                    
+            }
+            const pop = proofOfPossesion(fileFullPath,fileHash,token,nonce,wrongChallenge);
             if(pop.success){
                 //console.log("HMAC is OK");
                 //console.log("HMAC: " + pop.hmac);
-                createReport("proofOfPossesionReport.txt", `HMAC is OK\nHMAC: ${pop.hmac}`);
+                createReport("proofOfPossesionReport.txt", `HMAC is OK\nHMAC: ${pop.hmac}\n`);
             }else {
                 //console.log("HMAC is not OK");
                 //console.log(pop.message);
-                createReport("proofOfPossesionReport.txt", `HMAC is not OK\n${pop.message}`);
+                createReport("proofOfPossesionReport.txt", `HMAC is not OK\n${pop.message}\n`);
             }
+            
         }
-    }, 1000);
+    }, 5000);
     
 
 
@@ -316,7 +330,7 @@ async function serverSimulation() {
     setTimeout(() => {
         clearInterval(interval);
         clearInterval(interval2);
-    }, 30500);
+    }, 150500);
 }
 
 //  main function
