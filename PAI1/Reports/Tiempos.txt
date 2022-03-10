@@ -1,0 +1,61 @@
+TIEMPOS DE ITERACIÓN
+
+Tiempo de simulación: 62089 ms
+
+Tiempo de simulación: 62128 ms
+
+Tiempo de simulación: 62112 ms
+
+Tiempo de simulación: 62193 ms
+
+Tiempo de simulación: 62176 ms
+
+Tiempo de simulación: 62230 ms
+
+Tiempo de simulación: 62169 ms
+
+Tiempo de simulación: 62200 ms
+
+Tiempo de simulación: 62176 ms
+
+Tiempo de simulación: 62182 ms
+
+Tiempo de simulación: 62160 ms
+
+Tiempo de simulación: 62174 ms
+
+Tiempo de simulación: 62212 ms
+
+Tiempo de simulación: 62188 ms
+
+Tiempo de simulación: 62165 ms
+
+Tiempo de simulación: 62197 ms
+
+Tiempo de simulación: 62169 ms
+
+Tiempo de simulación: 62145 ms
+
+Tiempo de simulación: 62160 ms
+
+Tiempo de simulación: 62199 ms
+
+Tiempo de simulación: 62249 ms
+
+Tiempo de simulación: 62211 ms
+
+Tiempo de simulación: 62232 ms
+
+Tiempo de simulación: 62258 ms
+
+Tiempo de simulación: 62229 ms
+
+Tiempo de simulación: 62262 ms
+
+Tiempo de simulación: 62249 ms
+
+Tiempo de simulación: 62215 ms
+
+Tiempo de simulación: 62238 ms
+
+Tiempo de simulación: 62200 ms
