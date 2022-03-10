@@ -23,6 +23,8 @@ var hashInput = 0;
 const hashType = ['sha256', 'sha512', 'sha384'];
 const secret = 'clave-simetrica-secreta';
 var correoDst = "";
+var finalData = [0,0];
+
 // Function to generate random number
 function randomNumber(min, max) {
     return Math.round(Math.random() * (max - min) + min);
@@ -276,6 +278,7 @@ async function serverSimulation() {
             const result = checkIntegrity({ path: file, hash: filesMap.get(file) });
             result.then(res => { 
                 res[0] ? data[0]++ : data[1]++;
+                res[0] ? finalData[0]++ : finalData[1]++;
                 textInterval2 += res[1];
                 if (data[0] + data[1] == keysArray.length) {
                     createCSVReport(csv, index, data[0], data[1]);
