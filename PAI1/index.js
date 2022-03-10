@@ -4,6 +4,7 @@ const fs = require('fs');
 var nodemailer = require('nodemailer');
 const { send, env } = require('process');
 require('dotenv').config();
+const csv = require('csv-parser');
 const createCSV = require('csv-writer').createObjectCsvWriter;
 const readline = require('readline');
 
@@ -22,7 +23,7 @@ var sendMailYesNo = false;
 var hashInput = 0;
 const hashType = ['sha256', 'sha512', 'sha384'];
 const secret = 'clave-simetrica-secreta';
-var correoDst = "";
+var correoDst = "" || process.env.EMAIL_DST;
 var finalData = [0,0];
 
 // Function to generate random number
@@ -114,7 +115,7 @@ const checkIntegrity = async (file) => {
         //console.log(`${file.path} is corrupted`);
         text += `\n${file.path} is corrupted`;
         if(sendMailYesNo) {
-            sendMail();
+            sendMail(file.path);
         }
         // Restore file
         var restoring = await replaceContents(filesPath + file.path, './backupFiles/' + file.path, err => {
@@ -152,7 +153,7 @@ function corruptRandomFile(file) {
 
 
 // Function to send a mail to the client
-async function sendMail() {
+async function sendMail(file) {
     let transporter = nodemailer.createTransport({
         host: 'smtp-mail.outlook.com',
         port: 587,
@@ -171,7 +172,8 @@ async function sendMail() {
         html: `
         <h1>Beware!</h1>
         <br>
-        <p>One of your files is corrupted.</p>`, // html body
+        <p>One of your files is corrupted: </p>
+        <p>${file}</p>`, // html body
       };
       
     //console.log("Sending mail...");
@@ -333,6 +335,20 @@ async function serverSimulation() {
     setTimeout(() => {
         clearInterval(interval);
         clearInterval(interval2);
+        
+        var OKtotales = 0;
+        var CORRUPTtotales = 0;
+        fs.createReadStream('./Reports/dataReport.csv')
+        .pipe(csv())
+        .on('data', (row) => {
+            console.log(row);
+            OKtotales += parseInt(row.OK);
+            CORRUPTtotales += parseInt(row.CORRUPTED);
+        })
+        .on('end', () => {
+            fs.writeFileSync('./Reports/finalDataReport.csv', `TOTAL,OK,CORRUPTED,total % of correct files\n${OKtotales+CORRUPTtotales},${OKtotales},${CORRUPTtotales},${(OKtotales*100)/(OKtotales+CORRUPTtotales)}`);
+            console.log('CSV file successfully processed');
+        });
     }, 150500);
 }
 
@@ -361,5 +377,6 @@ const main = async () => {
     });
     
 }
+
 
 main();
