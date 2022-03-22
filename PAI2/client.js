@@ -1,19 +1,12 @@
 const WebSocket = require('ws');
 const crypto = require('crypto');
-// Create WebSocket connection.
-const socket = new WebSocket('ws://localhost:8081');
+const readline = require('readline');
 
 var nonces = [];
 const hashType = ['sha256', 'sha512', 'sha384'];
-var hashInput = 0;
-const secret = 'clave-simetrica-secreta';
-
-var object2send = {
-    message: "34567891 987654 300",
-    hmac: "",
-    hashType: hashInput,
-    nonce: null
-};
+var hashInput;
+var secret;
+var sendingMessage;
 
 
 // Function to create Nonce
@@ -27,28 +20,62 @@ function createNonce() {
 }
 
 // Function to create HMAC
-function createHmac(message) {
+function createHmac(obj) {
     const hmac = crypto.createHmac(hashType[hashInput], secret);
     
     const nonce = createNonce();
-    object2send.nonce = nonce;
+    obj.nonce = nonce;
 
-    hmac.update(message + nonce);
+    hmac.update(obj.message + nonce);
 
     const hex = hmac.digest('hex');
     return hex;
 }
+    
 
-
-// Connection opened
-socket.addEventListener('open', function (event) {
-    // TODO crear hashInput
-    object2send.hmac = createHmac(object2send.message);
-    socket.send(JSON.stringify(object2send));
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
 });
 
-// Listen for messages
-socket.addEventListener('message', function (event) {
-    console.log('Message from server ', event.data);
-    socket.close();
+rl.question('¿Qué función hash quiere utilizar?\n0 => sha256\n1 => sha512\n2 => sha384\n', function (hashInputI) {
+    hashInput = hashInputI;
+    rl.question('Escribe la clave simétrica\n', function (secretKey) {
+        secret = secretKey;
+        rl.question('Introduce los campos Cuenta Origen, Cuenta Destino, Cantidad, separados por espacios:\n', function (message) {
+            sendingMessage = message;
+            rl.close();
+        });
+    });
+});
+
+rl.on('close', function () {    
+    // Create WebSocket connection.
+    const socket = new WebSocket('ws://localhost:8081');
+
+    var object2send = {
+        message: sendingMessage,
+        hmac: "",
+        hashType: hashInput,
+        nonce: null
+    };
+    
+    
+    // Connection opened
+    socket.addEventListener('open', function (event) {
+        object2send.hmac = createHmac(object2send);
+        socket.send(JSON.stringify(object2send));
+    });
+    
+    // Listen for messages
+    socket.addEventListener('message', function (event) {
+        objectReceived = JSON.parse(event.data);
+        if (nonces.includes(objectReceived.nonce)) {
+            console.log("\nNonce already used");
+        } else {
+            nonces.push(objectReceived.nonce);
+            console.log('\nMessage from server: ', objectReceived);
+        }
+        socket.close();
+    });
 });
