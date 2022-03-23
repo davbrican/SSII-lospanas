@@ -6,6 +6,11 @@ var nonces = [];
 const hashType = ['sha256', 'sha512', 'sha384'];
 var secret;
 
+// Function to generate random number
+function randomNumber(min, max) {
+    return Math.round(Math.random() * (max - min) + min);
+}
+
 
 const rl = readline.createInterface({
     input: process.stdin,
@@ -47,6 +52,13 @@ rl.on('close', function () {
         ws.on('message', function incoming(message) {
             objectReceived = JSON.parse(message);
             //console.log('received: %s', objectReceived);
+            var error = randomNumber(0, 1);
+            if (error == 0) {
+                nonces.push(objectReceived.nonce);
+            } else if (error == 1) {
+                objectReceived.message = objectReceived.message.split(" ")[0] + " " + objectReceived.message.split(" ")[1] + " 0";
+            }
+
             if (nonces.includes(objectReceived.nonce)) {
                 ws.send(JSON.stringify({"message": "Nonce already used"}));
             } else {        
