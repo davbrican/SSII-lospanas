@@ -108,7 +108,7 @@ rl.on('close', function () {
                 break;
             // MiTM attack: message modification with new HMAC
             case "3":
-                createReport("clientLog.txt", "Mensaje simulando un ataque de modificación de mensaje con intento de creación de HMAC\n"+object2send+"\n");
+                createReport("clientLog.txt", "Mensaje simulando un ataque de modificación de mensaje con intento de creación de HMAC\n"+JSON.stringify(object2send)+"\n");
                 var messageSplit = object2send.message.split(" ");
                 object2send.hmac = createHmac(object2send, secret); // HMAC created by the client
                 object2send.message = messageSplit[0] + ' 3545331 ' + messageSplit[2]; // Message modified by the Man In The Middle
@@ -116,7 +116,8 @@ rl.on('close', function () {
                 socket.send(JSON.stringify(object2send));
                 break;
             default:
-                break;
+                console.log("No ha elegido ninguna opción correcta")
+                process.exit(1);
         }
     });
     
