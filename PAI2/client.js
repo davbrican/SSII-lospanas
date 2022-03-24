@@ -28,11 +28,8 @@ function createNonce() {
 }
 
 // Function to create HMAC
-function createHmac(obj, secret) {
+function createHmac(obj, nonce, secret) {
     const hmac = crypto.createHmac(hashType[hashInput], secret);
-    
-    const nonce = createNonce();
-    obj.nonce = nonce;
 
     hmac.update(obj.message + nonce);
 
@@ -89,20 +86,23 @@ rl.on('close', function () {
             // No attack
             case "0":
                 createReport("clientLog.txt", "Mensaje enviado sin ataques\n"+JSON.stringify(object2send)+"\n");
-                object2send.hmac = createHmac(object2send, secret);
+                object2send.nonce = createNonce();
+                object2send.hmac = createHmac(object2send, object2send.nonce, secret);
                 socket.send(JSON.stringify(object2send));
                 break;
             // MiTM attack: Reply attack
             case "1":
                 createReport("clientLog.txt", "Mensaje simulando un ataque de reply\n"+JSON.stringify(object2send)+"\n");
-                object2send.hmac = createHmac(object2send, secret);
+                object2send.nonce = createNonce();
+                object2send.hmac = createHmac(object2send, object2send.nonce, secret);
                 socket.send(JSON.stringify(object2send));
                 socket.send(JSON.stringify(object2send)); // Message resent (reply)
                 break;
             // MiTM attack: message modification
             case "2":
                 var oldObject = object2send;
-                object2send.hmac = createHmac(object2send, secret);
+                object2send.nonce = createNonce();
+                object2send.hmac = createHmac(object2send, object2send.nonce, secret);
                 object2send.message += "0"; // Message modified by the Man In The Middle
                 createReport("clientLog.txt", "Mensaje simulando un ataque de modificación de mensaje\nEnvio Original:\n"+JSON.stringify(oldObject)+"\nEnvio del Man In The Middle:\n"+JSON.stringify(object2send)+"\n");
                 socket.send(JSON.stringify(object2send));
@@ -111,9 +111,10 @@ rl.on('close', function () {
             case "3":
                 var oldObject = object2send;
                 var messageSplit = object2send.message.split(" ");
-                object2send.hmac = createHmac(object2send, secret); // HMAC created by the client
+                object2send.nonce = createNonce();
+                object2send.hmac = createHmac(object2send, object2send.nonce, secret); // HMAC created by the client
                 object2send.message = messageSplit[0] + ' 3545331 ' + messageSplit[2]; // Message modified by the Man In The Middle
-                object2send.hmac = createHmac(object2send, "secretomalcreadoporelmaninthemiddle"); // HMAC created by the Man In The Middle
+                object2send.hmac = createHmac(object2send, object2send.nonce, "secretomalcreadoporelmaninthemiddle"); // HMAC created by the Man In The Middle
                 createReport("clientLog.txt", "Mensaje simulando un ataque de modificación de mensaje con intento de creación de HMAC\nEnvio Original:\n"+JSON.stringify(oldObject)+"\nEnvio del Man In The Middle:\n"+JSON.stringify(object2send)+"\n");
                 socket.send(JSON.stringify(object2send));
                 break;
@@ -127,12 +128,23 @@ rl.on('close', function () {
     socket.addEventListener('message', function (event) {
         objectReceived = JSON.parse(event.data);
         console.log('\nMensaje del servidor:\n', objectReceived);
-        createReport("clientLog.txt", "Mensaje del servidor:\n"+JSON.stringify(objectReceived)+"\n");
+        
+        console.log(objectReceived.hmac);
+        console.log(createHmac(objectReceived, objectReceived.nonce, secret));
         if (nonces.includes(objectReceived.nonce)) {
+            createReport("clientLog.txt", "El mensaje del servidor al cliente ya ha sido recibido previamente (nonce repetido)\n");
             console.log("\nEl mensaje del servidor al cliente ya ha sido recibido previamente (nonce repetido)");
         } else {
-            nonces.push(objectReceived.nonce);
+            if (objectReceived.hmac === createHmac(objectReceived, objectReceived.nonce, secret)) {
+                createReport("clientLog.txt", "El mensaje del servidor al cliente ha sido recibido correctamente\n");
+                console.log("\nEl mensaje del servidor al cliente ha sido recibido correctamente");
+                nonces.push(objectReceived.nonce);
+            } else {
+                createReport("clientLog.txt", "El mensaje del servidor al cliente ha sido recibido incorrectamente\n");
+                console.log("\nEl mensaje del servidor al cliente ha sido recibido incorrectamente");
+            }
         }
+        createReport("clientLog.txt", "Mensaje del servidor:\n"+JSON.stringify(objectReceived)+"\n");
         socket.close();
     });
 });

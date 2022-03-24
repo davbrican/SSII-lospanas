@@ -1,7 +1,1 @@
 CLIENT LOGS
-
-Mensaje enviado sin ataques
-{"message":"456456456 654654654 300","hmac":"","hashType":"0","nonce":null}
-
-Mensaje del servidor:
-{"message":"La operación se ha realizado correctamente","nonce":"143de585b23cb89f364e3088781dbd48083fe53c76397015c22a1146295b334208151b417a13680f9d1b294fde63d2d7216c68218d9ad7e5a1dad937eed65df2e5433afc5d7e648dd4088843f28fe1bc1a60ee16f6d9dfb1c19c189291997f1dd445f3f8e408582a3d7bae68cd9eff458e2f1f16941c90a244dcd010d5560e52","hmac":"3c12964febf0d2c9416791137b093d703ab846855034f6c1c7c715a3c773b1f2","hashType":"0"}
