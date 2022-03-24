@@ -101,18 +101,20 @@ rl.on('close', function () {
                 break;
             // MiTM attack: message modification
             case "2":
-                createReport("clientLog.txt", "Mensaje simulando un ataque de modificación de mensaje\n"+JSON.stringify(object2send)+"\n");
+                var oldObject = object2send;
                 object2send.hmac = createHmac(object2send, secret);
                 object2send.message += "0"; // Message modified by the Man In The Middle
+                createReport("clientLog.txt", "Mensaje simulando un ataque de modificación de mensaje\nEnvio Original:\n"+JSON.stringify(oldObject)+"\nEnvio del Man In The Middle:\n"+JSON.stringify(object2send)+"\n");
                 socket.send(JSON.stringify(object2send));
                 break;
             // MiTM attack: message modification with new HMAC
             case "3":
-                createReport("clientLog.txt", "Mensaje simulando un ataque de modificación de mensaje con intento de creación de HMAC\n"+JSON.stringify(object2send)+"\n");
+                var oldObject = object2send;
                 var messageSplit = object2send.message.split(" ");
                 object2send.hmac = createHmac(object2send, secret); // HMAC created by the client
                 object2send.message = messageSplit[0] + ' 3545331 ' + messageSplit[2]; // Message modified by the Man In The Middle
                 object2send.hmac = createHmac(object2send, "secretomalcreadoporelmaninthemiddle"); // HMAC created by the Man In The Middle
+                createReport("clientLog.txt", "Mensaje simulando un ataque de modificación de mensaje con intento de creación de HMAC\nEnvio Original:\n"+JSON.stringify(oldObject)+"\nEnvio del Man In The Middle:\n"+JSON.stringify(object2send)+"\n");
                 socket.send(JSON.stringify(object2send));
                 break;
             default:

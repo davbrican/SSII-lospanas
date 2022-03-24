@@ -65,17 +65,41 @@ rl.on('close', function () {
             if (nonces.includes(objectReceived.nonce)) {
                 createReport("serverLog.txt", "El mensaje recibido es una respuesta a un ataque MiTM\n"+message+"\n");
                 console.log("La operación ha sido realizada ya previamente (nonce repetido)");
-                ws.send(JSON.stringify({"message": "La operación ha sido realizada ya previamente", "nonce": createNonce()}));
+                var nonceResponse = createNonce();
+                var object2send = {
+                    "message": "La operación ha sido realizada ya previamente (nonce repetido)",
+                    "nonce": nonceResponse,
+                    "hmac": null,
+                    "hashType": objectReceived.hashType
+                };
+                object2send.hmac = createHmac(object2send, nonceResponse, object2send.hashType);
+                ws.send(JSON.stringify(object2send));
             } else {        
                 nonces.push(objectReceived.nonce);
                 if (createHmac(objectReceived.message, objectReceived.nonce, objectReceived.hashType) === objectReceived.hmac) {
                     createReport("serverLog.txt", "La operación se ha realizado correctamente\n"+message+"\n");
                     console.log("La operación se ha realizado correctamente");
-                    ws.send(JSON.stringify({"message": "OK", "nonce": createNonce()}));
+                    var nonceResponse = createNonce();
+                    var object2send = {
+                        "message": "La operación se ha realizado correctamente",
+                        "nonce": nonceResponse,
+                        "hmac": null,
+                        "hashType": objectReceived.hashType
+                    };
+                    object2send.hmac = createHmac(object2send, nonceResponse, object2send.hashType);
+                    ws.send(JSON.stringify(object2send));
                 } else {
                     createReport("serverLog.txt", "La operación ha sido interceptada (hmac incorrecto)\n"+message+"\n");
                     console.log("La operación ha sido interceptada (hmac incorrecto)");
-                    ws.send(JSON.stringify({"message": "HMAC incorrecto", "nonce": createNonce()}));
+                    var nonceResponse = createNonce();
+                    var object2send = {
+                        "message": "La operación ha sido interceptada (hmac incorrecto)",
+                        "nonce": nonceResponse,
+                        "hmac": null,
+                        "hashType": objectReceived.hashType
+                    };
+                    object2send.hmac = createHmac(object2send, nonceResponse, object2send.hashType);
+                    ws.send(JSON.stringify(object2send));
                 }
             }
         });
