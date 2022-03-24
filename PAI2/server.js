@@ -13,9 +13,8 @@ function createNonce() {
     let nonce = crypto.randomBytes(128).toString('hex');
     if (nonces.includes(nonce)) {
         return createNonce();
-    } else {
-        return nonce;
     }
+    return nonce;
 }
 
 // Function to create HMAC
@@ -33,9 +32,9 @@ function createReport(reportFile, content) {
     reportFile = "./Reports/" + reportFile;
     fs.appendFile(reportFile, "\n"+content, (err) => {
         if (err) {
-            //console.log(err);
+            console.log(err);
         } else {
-            //console.log("Report created");
+            console.log("Report created");
         }
     });
 }
@@ -72,35 +71,27 @@ rl.on('close', function () {
                     "hmac": null,
                     "hashType": objectReceived.hashType
                 };
-                object2send.hmac = createHmac(object2send, nonceResponse, object2send.hashType);
+                object2send.hmac = createHmac(object2send.message, nonceResponse, object2send.hashType);
                 ws.send(JSON.stringify(object2send));
             } else {        
                 nonces.push(objectReceived.nonce);
+                var message2send = "";
                 if (createHmac(objectReceived.message, objectReceived.nonce, objectReceived.hashType) === objectReceived.hmac) {
-                    createReport("serverLog.txt", "La operación se ha realizado correctamente\n"+message+"\n");
-                    console.log("La operación se ha realizado correctamente");
-                    var nonceResponse = createNonce();
-                    var object2send = {
-                        "message": "La operación se ha realizado correctamente",
-                        "nonce": nonceResponse,
-                        "hmac": null,
-                        "hashType": objectReceived.hashType
-                    };
-                    object2send.hmac = createHmac(object2send, nonceResponse, object2send.hashType);
-                    ws.send(JSON.stringify(object2send));
+                    message2send = "La operación se ha realizado correctamente";
                 } else {
-                    createReport("serverLog.txt", "La operación ha sido interceptada (hmac incorrecto)\n"+message+"\n");
-                    console.log("La operación ha sido interceptada (hmac incorrecto)");
-                    var nonceResponse = createNonce();
-                    var object2send = {
-                        "message": "La operación ha sido interceptada (hmac incorrecto)",
-                        "nonce": nonceResponse,
-                        "hmac": null,
-                        "hashType": objectReceived.hashType
-                    };
-                    object2send.hmac = createHmac(object2send, nonceResponse, object2send.hashType);
-                    ws.send(JSON.stringify(object2send));
+                    message2send = "La operación ha sido interceptada (hmac incorrecto)";
                 }
+                createReport("serverLog.txt", message2send+"\n"+message+"\n");
+                console.log(message2send);
+                var nonceResponse = createNonce();
+                var object2send = {
+                    "message": message2send,
+                    "nonce": nonceResponse,
+                    "hmac": null,
+                    "hashType": objectReceived.hashType
+                };
+                object2send.hmac = createHmac(object2send.message, nonceResponse, object2send.hashType);
+                ws.send(JSON.stringify(object2send));
             }
         });
 

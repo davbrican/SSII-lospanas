@@ -11,20 +11,13 @@ var sendingMessage;
 var attackSimulation;
 
 
-
-// Function to generate random number
-function randomNumber(min, max) {
-    return Math.round(Math.random() * (max - min) + min);
-}
-
 // Function to create Nonce
 function createNonce() {
     let nonce = crypto.randomBytes(128).toString('hex');
     if (nonces.includes(nonce)) {
         return createNonce();
-    } else {
-        return nonce;
-    }
+    } 
+    return nonce;
 }
 
 // Function to create HMAC
@@ -42,9 +35,9 @@ function createReport(reportFile, content) {
     reportFile = "./Reports/" + reportFile;
     fs.appendFile(reportFile, "\n"+content, (err) => {
         if (err) {
-            //console.log(err);
+            console.log(err);
         } else {
-            //console.log("Report created");
+            console.log("Report created");
         }
     });
 } 
@@ -85,34 +78,34 @@ rl.on('close', function () {
         switch (attackSimulation) {
             // No attack
             case "0":
-                createReport("clientLog.txt", "Mensaje enviado sin ataques\n"+JSON.stringify(object2send)+"\n");
                 object2send.nonce = createNonce();
                 object2send.hmac = createHmac(object2send, object2send.nonce, secret);
+                createReport("clientLog.txt", "Mensaje enviado sin ataques\n"+JSON.stringify(object2send)+"\n");
                 socket.send(JSON.stringify(object2send));
                 break;
             // MiTM attack: Reply attack
             case "1":
-                createReport("clientLog.txt", "Mensaje simulando un ataque de reply\n"+JSON.stringify(object2send)+"\n");
                 object2send.nonce = createNonce();
                 object2send.hmac = createHmac(object2send, object2send.nonce, secret);
+                createReport("clientLog.txt", "Mensaje simulando un ataque de reply\n"+JSON.stringify(object2send)+"\n");
                 socket.send(JSON.stringify(object2send));
                 socket.send(JSON.stringify(object2send)); // Message resent (reply)
                 break;
             // MiTM attack: message modification
             case "2":
-                var oldObject = object2send;
                 object2send.nonce = createNonce();
                 object2send.hmac = createHmac(object2send, object2send.nonce, secret);
+                var oldObject = object2send;
                 object2send.message += "0"; // Message modified by the Man In The Middle
                 createReport("clientLog.txt", "Mensaje simulando un ataque de modificación de mensaje\nEnvio Original:\n"+JSON.stringify(oldObject)+"\nEnvio del Man In The Middle:\n"+JSON.stringify(object2send)+"\n");
                 socket.send(JSON.stringify(object2send));
                 break;
             // MiTM attack: message modification with new HMAC
             case "3":
-                var oldObject = object2send;
                 var messageSplit = object2send.message.split(" ");
                 object2send.nonce = createNonce();
                 object2send.hmac = createHmac(object2send, object2send.nonce, secret); // HMAC created by the client
+                var oldObject = object2send;
                 object2send.message = messageSplit[0] + ' 3545331 ' + messageSplit[2]; // Message modified by the Man In The Middle
                 object2send.hmac = createHmac(object2send, object2send.nonce, "secretomalcreadoporelmaninthemiddle"); // HMAC created by the Man In The Middle
                 createReport("clientLog.txt", "Mensaje simulando un ataque de modificación de mensaje con intento de creación de HMAC\nEnvio Original:\n"+JSON.stringify(oldObject)+"\nEnvio del Man In The Middle:\n"+JSON.stringify(object2send)+"\n");
@@ -129,8 +122,6 @@ rl.on('close', function () {
         objectReceived = JSON.parse(event.data);
         console.log('\nMensaje del servidor:\n', objectReceived);
         
-        console.log(objectReceived.hmac);
-        console.log(createHmac(objectReceived, objectReceived.nonce, secret));
         if (nonces.includes(objectReceived.nonce)) {
             createReport("clientLog.txt", "El mensaje del servidor al cliente ya ha sido recibido previamente (nonce repetido)\n");
             console.log("\nEl mensaje del servidor al cliente ya ha sido recibido previamente (nonce repetido)");
