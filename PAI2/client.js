@@ -59,9 +59,9 @@ const rl = readline.createInterface({
 
 rl.question('¿Qué función hash quiere utilizar?\n0 => sha256\n1 => sha512\n2 => sha384\n', function (hashInputI) {
     hashInput = hashInputI;
-    rl.question('Escribe la clave simétrica\n', function (secretKey) {
+    rl.question('Escriba la clave simétrica\n', function (secretKey) {
         secret = secretKey;
-        rl.question('Introduce los campos Cuenta Origen, Cuenta Destino, Cantidad, separados por espacios:\n', function (message) {
+        rl.question('Introduzca los campos Cuenta Origen, Cuenta Destino, Cantidad, separados por espacios:\n', function (message) {
             sendingMessage = message;
             rl.question('Desea simular algún tipo de ataque:\n0 => Ninguno\n1 => Reply\n2 => MiTM (modificación de mensaje)\n3 => MiTM (modificación de mensaje y de HMAC)\n', function (aSim) {
                 attackSimulation = aSim;

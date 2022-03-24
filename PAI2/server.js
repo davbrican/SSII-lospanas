@@ -45,7 +45,7 @@ const rl = readline.createInterface({
     output: process.stdout
 });
 
-rl.question('Escribe la clave simétrica\n', function (secretKey) {
+rl.question('Escriba la clave simétrica\n', function (secretKey) {
     secret = secretKey;
     rl.close();
 });
