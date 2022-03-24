@@ -7,26 +7,6 @@ var nonces = [];
 const hashType = ['sha256', 'sha512', 'sha384'];
 var secret;
 
-
-// Function to create Nonce
-function createNonce() {
-    let nonce = crypto.randomBytes(128).toString('hex');
-    if (nonces.includes(nonce)) {
-        return createNonce();
-    }
-    return nonce;
-}
-
-// Function to create HMAC
-function createHmac(message, nonce, hashInput) {
-    const hmac = crypto.createHmac(hashType[hashInput], secret);
-
-    hmac.update(message + nonce);
-
-    const hex = hmac.digest('hex');
-    return hex;
-}
-
 // Function to create a report
 function createReport(reportFile, content) {
     reportFile = "./Reports/" + reportFile;
@@ -38,6 +18,7 @@ function createReport(reportFile, content) {
         }
     });
 }
+
 
 const rl = readline.createInterface({
     input: process.stdin,
@@ -52,6 +33,23 @@ rl.question('Escriba la clave simétrica\n', function (secretKey) {
 rl.on('close', function () {
     console.log("Esperando conexión...");
 
+    // Function to create HMAC
+    function createHmac(message, nonce, hashInput) {
+        const hmac = crypto.createHmac(hashType[hashInput], secret);
+
+        hmac.update(message + nonce);
+
+        const hex = hmac.digest('hex');
+        return hex;
+    }
+
+    function createNonce() {
+        return crypto.randomBytes(128).toString('hex');
+    }
+
+
+
+
 
     const wss = new WebSocket.Server({ port: 8081 });
 
@@ -61,38 +59,30 @@ rl.on('close', function () {
         // Wire up logic for the message event (when a client sends something)
         ws.on('message', function incoming(message) {
             objectReceived = JSON.parse(message);
+
+            let object2send = {
+                message: "",
+                hmac: "",
+                hashType: objectReceived.hashType,
+                nonce: createNonce()
+            };
+
+
             if (nonces.includes(objectReceived.nonce)) {
                 createReport("serverLog.txt", "El mensaje recibido es una respuesta a un ataque MiTM\n"+message+"\n");
-                console.log("La operación ha sido realizada ya previamente (nonce repetido)");
-                var nonceResponse = createNonce();
-                var object2send = {
-                    "message": "La operación ha sido realizada ya previamente (nonce repetido)",
-                    "nonce": nonceResponse,
-                    "hmac": null,
-                    "hashType": objectReceived.hashType
-                };
-                object2send.hmac = createHmac(object2send.message, nonceResponse, object2send.hashType);
-                ws.send(JSON.stringify(object2send));
-            } else {        
+                object2send.message = "Nonce already used"
+            } else {
                 nonces.push(objectReceived.nonce);
-                var message2send = "";
                 if (createHmac(objectReceived.message, objectReceived.nonce, objectReceived.hashType) === objectReceived.hmac) {
-                    message2send = "La operación se ha realizado correctamente";
+                    object2send.message = "OK"
                 } else {
-                    message2send = "La operación ha sido interceptada (hmac incorrecto)";
+                    object2send.message = "HMAC incorrecto"
                 }
-                createReport("serverLog.txt", message2send+"\n"+message+"\n");
-                console.log(message2send);
-                var nonceResponse = createNonce();
-                var object2send = {
-                    "message": message2send,
-                    "nonce": nonceResponse,
-                    "hmac": null,
-                    "hashType": objectReceived.hashType
-                };
-                object2send.hmac = createHmac(object2send.message, nonceResponse, object2send.hashType);
-                ws.send(JSON.stringify(object2send));
             }
+            createReport("serverLog.txt", object2send.message+"\n"+message+"\n");
+            console.log(object2send.message);
+            object2send.hmac = createHmac(object2send.message, object2send.nonce, object2send.hashType);
+            ws.send(JSON.stringify(object2send));
         });
 
     });
