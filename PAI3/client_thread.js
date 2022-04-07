@@ -40,14 +40,9 @@ function createReport(reportFile, content) {
     });
 } 
 
-const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-});
-
 var i = 0;
 while (i < 300) { 
-    const socket = new WebSocket('wss://192.168.88.19:8081', cipherSuites[0], { rejectUnauthorized: false});
+    const socket = new WebSocket('wss://localhost:8081', { rejectUnauthorized: false, ciphers: cipherSuites[0] });
 
     var object2send = {
         message: sendingMessage,
