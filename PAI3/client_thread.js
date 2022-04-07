@@ -5,10 +5,10 @@ const fs = require('fs');
 const { Agent } = require('https');
 var nonces = [];
 const hashType = ['sha256', 'sha512', 'sha384'];
-var hashInput;
-var secret;
-var sendingMessage;
-var attackSimulation;
+var hashInput = "0";
+var secret = "s";
+var sendingMessage = "123123 456456 100";
+var attackSimulation = "0";
 var cipherSuites = ['TLS_AES_256_GCM_SHA384', 'TLS_CHACHA20_POLY1305_SHA256', 'TLS_AES_128_GCM_SHA256'];
 
 
@@ -33,9 +33,10 @@ function createReport(reportFile, content) {
     fs.appendFile(reportFile, "\n"+content, (err) => {
         if (err) {
             console.log(err);
-        } else {
-            console.log("Report created");
         }
+        /* else {
+            console.log("Report created");
+        }*/
     });
 } 
 
@@ -44,23 +45,9 @@ const rl = readline.createInterface({
     output: process.stdout
 });
 
-rl.question('¿Qué función hash quiere utilizar?\n0 => sha256\n1 => sha512\n2 => sha384\n', function (hashInputI) {
-    hashInput = hashInputI >= 0 && hashInputI <= 2 ? hashInputI : 0;
-    rl.question('Escriba la clave simétrica\n', function (secretKey) {
-        secret = secretKey;
-        rl.question('Introduzca los campos Cuenta Origen, Cuenta Destino, Cantidad, separados por espacios:\n', function (message) {
-            sendingMessage = message;
-            rl.question('Desea simular algún tipo de ataque:\n0 => Ninguno\n1 => Reply\n2 => MiTM (modificación de mensaje)\n3 => MiTM (modificación de mensaje y de HMAC)\n', function (aSim) {
-                attackSimulation = aSim;
-                rl.close();
-            });
-        });
-    });
-});
-
-rl.on('close', function () {    
-    // Create WebSocket connection.
-    const socket = new WebSocket('wss://192.168.88.19:8081', cipherSuites[1], { rejectUnauthorized: false});
+var i = 0;
+while (i < 300) { 
+    const socket = new WebSocket('wss://192.168.88.19:8081', cipherSuites[0], { rejectUnauthorized: false});
 
     var object2send = {
         message: sendingMessage,
@@ -68,8 +55,8 @@ rl.on('close', function () {
         hashType: hashInput,
         nonce: null
     };
-    
-    
+
+
     // Connection opened
     socket.addEventListener('open', function (event) {
         object2send.nonce = createNonce();
@@ -99,31 +86,33 @@ rl.on('close', function () {
                 createReport("clientLog.txt", "Mensaje simulando un ataque de modificación de mensaje con intento de creación de HMAC\nEnvio Original:\n"+JSON.stringify(oldObject)+"\nEnvio del Man In The Middle:\n"+JSON.stringify(object2send)+"\n");
                 break;
             default:
-                console.log("No ha elegido ninguna opción correcta")
+                //console.log("No ha elegido ninguna opción correcta")
                 process.exit(1);
         }
         socket.send(JSON.stringify(object2send));
     });
-    
+
     // Listen for messages
     socket.addEventListener('message', function (event) {
         objectReceived = JSON.parse(event.data);
-        console.log('\nMensaje del servidor:\n', objectReceived);
+        //console.log('\nMensaje del servidor:\n', objectReceived);
         
         if (nonces.includes(objectReceived.nonce)) {
             createReport("clientLog.txt", "El mensaje del servidor al cliente ya ha sido recibido previamente (nonce repetido)\n");
-            console.log("\nEl mensaje del servidor al cliente ya ha sido recibido previamente (nonce repetido)");
+            //console.log("\nEl mensaje del servidor al cliente ya ha sido recibido previamente (nonce repetido)");
         } else {
             if (objectReceived.hmac === createHmac(objectReceived.message, objectReceived.nonce, secret)) {
                 createReport("clientLog.txt", "El mensaje del servidor al cliente ha sido recibido correctamente\n");
-                console.log("\nEl mensaje del servidor al cliente ha sido recibido correctamente");
+                //console.log("\nEl mensaje del servidor al cliente ha sido recibido correctamente");
                 nonces.push(objectReceived.nonce);
             } else {
                 createReport("clientLog.txt", "El mensaje del servidor al cliente ha sido recibido incorrectamente\n");
-                console.log("\nEl mensaje del servidor al cliente ha sido recibido incorrectamente");
+                //console.log("\nEl mensaje del servidor al cliente ha sido recibido incorrectamente");
             }
         }
         createReport("clientLog.txt", "Mensaje del servidor:\n"+JSON.stringify(objectReceived)+"\n");
         socket.close();
     });
-});
+    console.log("Cliente Nº " + (i+1));
+    i++;
+}
