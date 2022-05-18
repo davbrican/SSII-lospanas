@@ -3,15 +3,37 @@ package com.example.myapplication;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.res.Resources;
+import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
+import android.util.Pair;
 import android.view.View;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+
+import java.security.InvalidKeyException;
+import java.security.KeyFactory;
+import java.security.Signature;
+import java.security.SignatureException;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
+import java.util.Hashtable;
+import java.security.KeyPairGenerator; import java.security.NoSuchAlgorithmException; import java.security.PrivateKey; import java.security.PublicKey; import java.security.spec.InvalidKeySpecException; import java.security.spec.X509EncodedKeySpec; import java.util.Base64; import java.security.KeyFactory; import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
+import java.security.KeyFactory;
+import java.security.KeyPair;
+
 
 
 public class MainActivity extends AppCompatActivity {
@@ -19,6 +41,16 @@ public class MainActivity extends AppCompatActivity {
     // Setup Server information
     protected static String server = "192.168.1.133";
     protected static int port = 7070;
+    static final Pair<Integer, String> UsuarioN1 = new Pair<>(1, "MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC6lLSAVn2u8BdDHBDAv+/7xUvwekK+Wd2LKiMW5k7mqO9JA3xpuXrO6ocGHhKS5Xu9fP5LztRgeGk4kGXMYzBF1x9DXoHCfcQ21RUZO2ERUg+OA3dRBNct287XX535FUO+yi3ItaxBUSaLdxHWS+tsSN3tWlGeTGm3gzJ+5Kb44YN+tUZbzzGRHYECMewTsDr4RD0fFEiijH84LdGDHIvQf/4CLQUHNicYcVgtBCfKCw/5hVW/90w3NB1zKdHK5Ln6UriKJsUFAmOT8kyi7bgvYReFis++rdEzX+G27THQzFsgyLGFTmmrIMNJiZdIHBv5GCIJYjdCDoPDiX4h7w3RAgMBAAECggEAAtMkR0f38RLLDrMsCO0G/OVJahTscdhnX3dgzrSSgnu8MVtAsj2ShPOISIuNQq/VKiLhsI5gs6wIWh4WinarI7g3GGnOgLOEfwOGGqAQucadJsG5mAPg9Eg+XGSi/hhy3Sk6B6Ps0r7VUhnNrsnEC6Xv7+C047basrfFPJD+kFNGvLCDs6wokse0Bcj22jsxr+gtMwMF25XdHFVW6rskOV1MUALrapJ7jgC2eauln8y5Ju6N5O36ThoQhbNbBXrxDRhY6jtrIBie3W3A5djAkNMy095qCVwPPVpZeu340yt0eDBlBcvQZqjcFAzqdf8ZPUcmYB2xQRo+vlt0CnaDuQKBgQDFC8DLAaes7MJtqhlhJ+fbU2cNaM0aN5PcAsD3BN4Rnz8TveUu9xQWbnr9thX0mNuBTFY881hI3Vn2DMOTJar/7XAs3PM8U8c+5E6MD2VI5A5kJq9WN33Kj5GqCufqV9iYIk6csfElPPzq3YOvuM16urvJ6RDIqCqxLIy8SbvSqQKBgQDyZ2idUXuIqDKTasMS0g5AP4iK1nuXUGoOx8iefM9XFziXc5kNhs/H4yOsDuY2LEpp4Xl94Qa3N6gL3/8tQuaeKj0CBLAzUcHrtPO5+J+f4IOLIsO4HGZ5Bok14//soIRO7XC0w6r2qx0bpWZM+wAXQu0MaCgOCjipZmX5+P8C6QKBgQCiQZFaGVzHapaX0y/e7wtfcYg0ZI4v/oAE9UeMoTdz71vzl7U3PUIPTp58eQoPRifKit+ghQm3xn4jvFL3wlbTM+PhLXglvx8czMdZUfwnT5QCKFDNgBhXSm26Rgy+zeOPMwDkyyo1bckeZZXghx685zNnikHF2aR+DJ8/FMBTMQKBgQDPLVy3YKYRpZgccNorYsb1WJfN+gUFzZ/n5A7ujkPz7o/aud0tN3StJdAeRVmzIWW0WxaoZMSFoZcKFzeUqqJKulUMPY+PPShd2XmaEAn17kDfkSXwXK2kcNai7ayVxJdwkfWLOdUMIDGvqEzoLHrmZrgNq5PYdBn7ht5PqOXjyQKBgGWI59NYWy/y1Vq0bMy1oVBkMpR5DJpXLFSGJXCrQ/tTdCVyfmdTQNiOs65XgDei5SJXy6X7nR+Ofd/zXYkripks0+3L1+x3+b4lsqqxAkQXJzcTiUS8WvDxaBL8Px1zeJ0nfrXDXhTgh71xlE+HLeMbqMJcDflM+0ZPn6nflckM");
+    static final Pair<Integer, String> UsuarioN2 = new Pair<>(2, "MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQC8E2ZaPGk2Cq4EF/hfh9MJX/nLi4J9TiGO+fC5cTGy7uGbFsMKeceRU2LE3Ktjpx89MSVh49C3L/C3I6CCvZ43SWPzx9fb2P44j6NzCOgPhdjOv5bhMgO092y8rEH1cEjiRIWB40K1zBseE7dVxchQmcUnyLOhhGIrgquZe7mzOCq3TdFGuX2UqBBXerWDehEAi72KL9mh8D0+HJgFgH/+GGlRg9gT28tj3p90M9yZqEV4rFK9Zi7p/9wk8SJrqYVd987Rq03cHc+MnCUBAvCxE8Mi7TAugpLgWxyhC1osaCp/CN/GnTe9+/zONk3/yrrHNsV/uNHjlJDmZOdyT5ipAgMBAAECggEADcpJBvTHAh9mWFvUP6zwhw9yfBTj9yweFHhfHjnJMHAzj/DrUX6nE2YkfSrGUQLqrMydtmpt3gC14GJ3B8m/gBjxgJPL+rgTwTHxr3hHtluqD1Qc9rDOyhtvmFCecCX7h3EJbldWMjOftA+IsdFUDr+M+o3MyLBcQl8ia0Psfyd5SSBauleuM6zTK1wJ6yOEXdVOld9Jp/5WcPwiAkeOjzP45Pd9Rop9y2oESFXlzwEHTWcfTn599cQigbOypOCCTAtRjPX3hkK+U1M6wEr80gER6+olQlwyJbYzXpiXUWJhHL8uVL5YAlaSHviwx6jAU2dpbRVKoAcKVP/+yXc4wQKBgQC9dbGk9eAHziXFh810yGZiXV1X3jvyfH9NsMOYNZ+W1QCb+5EWg3qoo54kkF7sQPPDYZN+D7dVBieV3ZLwjW7Ft9VtgxG3O78CV8nv0BdJLev+WFyzm4eoBgq5GUynzAFg0p9OWHnRDwJ+UYdNIhaNVfCY5SWxAqguaPfPkVeNvwKBgQD+IUYpMFSZ0rUSHiN0D1DL1KwsQBjdYdGfdsOsFCDLiP5eDJ9jDdWugwg9G9TA64UBv2KYbZZSIj3WBWdW6pAsXqkvbXQg6fscuSRsaJaRy2+6cGvFf0w44vYezLghgfr4UTEBKvoXYA/8oQtbxMLPmcbE8QSnRbNKjMmEeu5DlwKBgF/mNB5Qyq6IvXvH6sqDKbf+lGIGvodWV0XnBIqGEhrSBHXwF5eyw6Ka91CAt1uU4Q5z1KmJoP3rmJv2RQt4O6rfC6xcHNqH5n50G2ZFCZRkJ0FeTsYnIrp9HG5nDPMeg1AULMkGZdrZYyS3deooKAwwhRGPY82+j4y2W0F4yz2XAoGAezJwS+l1Kfke9MCNmWcPWTEpom4UX8ZbE/5ET7iWSXWJMtjVr/R2AZreNJm4YyoKGdXJG3IM7JZS+d02wskFyay+QhLCuG4V4U/T24Y8cEN6T5zOcjkLH4zPmhDOttfHbfgWVKWcBhb4yRTdZ8iUVIYM+U6KXfkJOPvVeZcKyNMCgYBoza2ysac8VaBidA4+gj5Ygl0kFdmyKiuf+CVQaXXkV7gJc7ElIDfFDAaDNjD1fbjSea8eDTDrD0acQniUOFWA7Vtxdb4nOGI62rb9qGgHMp6cCjfpfiey8BHow21pXPbVD6KscmNg3Dcy9pIG1DUpiwJaK4HL2SInJxnRWCAhVw==");
+    static final Pair<Integer, String> UsuarioN3 = new Pair<>(3, "MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDZFBBi0BqwC/xQq52JEWBx9mf5TevQKMEPX1uT+JsKwSBpe24XuPHCdtUS5gWK1mmj7JV6YHo25HZy2HpemUnLDDlM/UdJJl0ZhJbE+w4j3d8ZJQ2nSf97lP6kYED+V09nrTUNlsAmIJX3c/TQD38KIU9CwACLqhhUeR5Mh980AWK8arvz5ZgL32Jq9EB8Zz4W9/TfpOn0xNnoRuEXWVY5QbzJz7vzyxhpg6ae26A5YzJaAoJDRTbqJb7QMRTJRNFVDneiu5UQc7pcsj3rZYT76U7ZpUy+qefVuxmLveYDl92JYjcQJvbmYgs/1HcwrwsfCjexZaDQYV0i1gOqZAzhAgMBAAECggEAAoAzrB+/nvWUY42GlBSqKsXu7rVSGSTPDJFJqcu8ZYRSDkUIwKc1ycq6q6wQtkfAEc5g7nb8EXPSVYJe7oYPjpJGereUQah6fBfF8OD/ibQ9pLmDjcDRe6f8wwIE3ak91fDt4okxD39imuYwFNGI4iH+GsPBfdpoy1hV3AXYsW2pOaUCfnXCoNgUtIxOrMvbg80mkBONOIt8d9JcD3mehBWm5y5OQ3CY+2LQwQwBzABNPLZQdxIyTNXe2YxUNAJzmIkiPwf+BDeONfvF1b9QWzYdbOUFd/7XwEXiwYf96X5CbdXsNX8YLTmNV3vHqIqPPZTEP0qc2D3n/8jcBHVGzQKBgQDxgm1LuejCNvtAVsEtONrc1++robvcvdnOBmXCMCF8+3u6sgm1WzHnz7hng5HxpHxz2OeXwICqpC73yNv+MHx1Fxt8HF4DbhNmGu4X75o7GGWuX2kHfCnvF4quVrjfdTnXeX4/CGsmWh68PIWa01Q53aL5LadOPX9FXIzbXUnd9wKBgQDmGmBmkr0PROJAYdfJ/S4DGYI6lbEA+aUxaj6+qZ2S0Ij6sJ/mIaGGDXyIu2lEycNmVzZSIuzFkNdZtIm6l+HssPyM7mFIUtbcCteJfqAw9VNDOq1lzhefhwscZpwaDtFVtkGJsH0yboQ38aKQTa77QLkE2kEok/weqSxnQtSV5wKBgQCkwLkWw8iJVUCpb4Vw+Cw2JAkYKMkjmVAQQEUC6BqwTE7n2bTNx1yQKyA9XYAePHu5++phl60uu7pexuNs0F7W8eCKFj/8TwdkzFJIeefZEJetEOFxfb6NoJ22uOp9ZlcDK5p4HaIbE7eL6i2qpSf8IbqgCgjsUv+TrcNZkpZlmQKBgGV4FDKnWr+0/KCvhN0JzJSJVyhGgnuPmw0jcO/bFCV92CnUYW62PehDYjtZiZ5P6t7ibo3h4M9ug8iHGIU0HOinU3dCV5vxC9aU4V88e5+bT1BCO9y8+SXcA0ZO6V+EUUOez1/MeCkZGy0gXTONTjB15iEBreIa//71UyNmESDZAoGBAIXhigFXhzDTDDrzQS6nzAAqZAMKFN8MIfRdJw+jXg5RUy9aMh10i5Srx+qhixlejoVtjM4dg0wslx3KTvWROoxt2HYW+VooykZ+nzPzj8RS1AdyjOFZBoH0ihVkgSBxlkMNtoQde2qA51LuA2TV5GMoWhH46InoVgbehmQshf4g");
+
+    private static final Hashtable<String, Pair<Integer, String>> UsuariosID = new Hashtable<String, Pair<Integer, String>>(){{
+       put("Usuario 1", UsuarioN1);
+       put("Usuario 2", UsuarioN2);
+       put("Usuario 3", UsuarioN3);
+    }};
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,51 +73,84 @@ public class MainActivity extends AppCompatActivity {
 
     // Creación de un cuadro de dialogo para confirmar pedido
     private void showDialog() throws Resources.NotFoundException {
+
         EditText camas = (EditText) findViewById(R.id.camas);
         EditText mesas = (EditText) findViewById(R.id.mesas);
         EditText sillas = (EditText) findViewById(R.id.sillas);
         EditText sillones = (EditText) findViewById(R.id.sillones);
         Spinner usuario = (Spinner) findViewById(R.id.usuario);
 
-        Integer nCamas = Integer.parseInt(mesas.getText().toString());
-        Integer nMesas = Integer.parseInt(mesas.getText().toString());
-        Integer nSillas = Integer.parseInt(mesas.getText().toString());
-        Integer nSillones = Integer.parseInt(mesas.getText().toString());
-        String Nusuario = usuario.getSelectedItem().toString();
+        Boolean condicion = TextUtils.isEmpty(camas.getText().toString()) || TextUtils.isEmpty(mesas.getText().toString()) || TextUtils.isEmpty(sillas.getText().toString()) || TextUtils.isEmpty(sillones.getText().toString());
 
-        Log.d("usuario", Nusuario);
-
-        if (false) {
+        if(condicion){
             // Mostramos un mensaje emergente;
-            Toast.makeText(getApplicationContext(), "Selecciona al menos un elemento", Toast.LENGTH_SHORT).show();
-        } else {
-            new AlertDialog.Builder(this)
-                    .setTitle("Enviar")
-                    .setMessage("Se va a proceder al envio")
-                    .setIcon(R.drawable.ic_launcher_background)
-                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+            Log.d("loquesea", "error");
+            Toast.makeText(getApplicationContext(), "Todos los campos deben estar rellenos", Toast.LENGTH_SHORT).show();
+        }else {
 
-                                // Catch ok button and send information
-                                public void onClick(DialogInterface dialog, int whichButton) {
+            final Integer nCamas = Integer.parseInt(camas.getText().toString());
+            final Integer nMesas = Integer.parseInt(mesas.getText().toString());
+            final Integer nSillas = Integer.parseInt(sillas.getText().toString());
+            final Integer nSillones = Integer.parseInt(sillones.getText().toString());
 
-                                    // 1. Extraer los datos de la vista
 
-                                    // 2. Firmar los datos
 
-                                    // 3. Enviar los datos
 
-                                    Toast.makeText(MainActivity.this, "Petición enviada correctamente", Toast.LENGTH_SHORT).show();
+            Boolean condicion2 = 0 > nCamas || nCamas > 300 || 0 > nMesas || nMesas > 300 || 0 > nSillas || nSillas > 300 || 0 > nSillones || nSillones > 300;
+
+            if (condicion2) {
+                // Mostramos un mensaje emergente;
+                Toast.makeText(getApplicationContext(), "Las cantidades deben estar comprendidas entre 0 y 300", Toast.LENGTH_SHORT).show();
+
+            } else {
+                String Nusuario = usuario.getSelectedItem().toString();
+                final Pair UsuarioIdClave = UsuariosID.get(Nusuario);
+
+                new AlertDialog.Builder(this)
+                        .setTitle("Enviar")
+                        .setMessage("Se va a proceder al envio")
+                        .setIcon(R.drawable.ic_launcher_background)
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+
+                                    // Catch ok button and send information
+                                    @RequiresApi(api = Build.VERSION_CODES.O)
+                                    public void onClick(DialogInterface dialog, int whichButton) {
+                                        // 1. Pedido
+                                        String pedido = "" + nCamas +" "+ nMesas+ " "+ nSillas+ " "+ nSillones+ " "+ UsuarioIdClave.first;
+                                        // 2. Firmar los datos
+                                        byte[] privateKeyBytes = Base64.getDecoder().decode(UsuarioIdClave.second.toString());
+                                        X509EncodedKeySpec spec = new X509EncodedKeySpec(privateKeyBytes);
+                                        KeyFactory keyFactory;
+                                        try {
+                                            keyFactory = KeyFactory.getInstance("RSA");
+                                            PrivateKey privateKey = keyFactory.generatePrivate(spec);
+                                            Signature sg = Signature.getInstance("SHA256withRSA");
+                                            sg.initSign(privateKey);
+                                            sg.update(pedido.getBytes());
+                                            // Firma
+                                            byte[] firma = sg.sign();
+                                            
+                                        } catch (NoSuchAlgorithmException | InvalidKeySpecException | InvalidKeyException | SignatureException e) {
+                                            e.printStackTrace();
+                                        }
+
+
+                                        // 3. Enviar los datos
+
+
+                                        Toast.makeText(MainActivity.this, "Petición enviada correctamente", Toast.LENGTH_SHORT).show();
+                                    }
                                 }
-                            }
 
-                    )
-                    .
+                        )
+                                .
 
-                            setNegativeButton(android.R.string.no, null)
+                        setNegativeButton(android.R.string.no, null)
 
-                    .
+                                .
 
-                            show();
+                        show();
+            }
         }
     }
 
