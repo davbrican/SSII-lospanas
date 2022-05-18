@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -44,21 +45,24 @@ public class MainActivity extends AppCompatActivity {
         EditText mesas = (EditText) findViewById(R.id.mesas);
         EditText sillas = (EditText) findViewById(R.id.sillas);
         EditText sillones = (EditText) findViewById(R.id.sillones);
+        Spinner usuario = (Spinner) findViewById(R.id.usuario);
 
-        Log.d("camas", camas.getText().toString());
-        Log.d("mesas", Integer.parseInt( mesas.getText().toString() ) );
+        Integer nCamas = Integer.parseInt(mesas.getText().toString());
+        Integer nMesas = Integer.parseInt(mesas.getText().toString());
+        Integer nSillas = Integer.parseInt(mesas.getText().toString());
+        Integer nSillones = Integer.parseInt(mesas.getText().toString());
+        String Nusuario = usuario.getSelectedItem().toString();
 
+        Log.d("usuario", Nusuario);
 
-        Integer.parseInt(camas.getText().toString());
-
-        if (true) {
+        if (false) {
             // Mostramos un mensaje emergente;
             Toast.makeText(getApplicationContext(), "Selecciona al menos un elemento", Toast.LENGTH_SHORT).show();
         } else {
             new AlertDialog.Builder(this)
                     .setTitle("Enviar")
                     .setMessage("Se va a proceder al envio")
-                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setIcon(R.drawable.ic_launcher_background)
                     .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
 
                                 // Catch ok button and send information
