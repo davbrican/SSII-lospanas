@@ -55,22 +55,23 @@ class Main {
                 String id = Campos[1];
                 String firma = Campos[2];
                 System.out.println(firma);
-                String publicKey = Usuarios.get(Integer.parseInt(id));
 
+                String publicKey = Usuarios.get(Integer.parseInt(id));
                 byte[] publicKeyBytes = Base64.getDecoder().decode(publicKey);
+                byte[] firmaBytes = Base64.getDecoder().decode(firma);
+
                 X509EncodedKeySpec spec = new X509EncodedKeySpec(publicKeyBytes);
                 KeyFactory keyFactory = KeyFactory.getInstance("RSA");
                 PublicKey publicKey2 = keyFactory.generatePublic(spec);
                 
-
                 Signature sg = Signature.getInstance("SHA256withRSA");
                 sg.initVerify(publicKey2);
                 sg.update(pedido.getBytes());
                 // Verification de firma
-                //System.out.println(firma);
-                Byte ahora = Byte.parseByte(firma);
-                System.out.println(ahora.to);
-                //sg.verify(ahora);
+                if(sg.verify(firmaBytes)){
+                    System.out.println("Firma correcta");
+                    System.out.println(pedido);
+                };
 
             } catch (IOException e) {
                 return;

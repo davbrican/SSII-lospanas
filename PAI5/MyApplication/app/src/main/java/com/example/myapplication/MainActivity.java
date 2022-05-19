@@ -115,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
                                         PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(privateKeyBytes);
                                         KeyFactory keyFactory;
                                         byte[] pedidoFirmado = new byte[0];
+                                        String pruebaPedido = new String();
 
                                         try {
                                             keyFactory = KeyFactory.getInstance("RSA");
@@ -124,8 +125,8 @@ public class MainActivity extends AppCompatActivity {
                                             sg.update(pedido.getBytes());
                                             // Firma
                                             pedidoFirmado = sg.sign();
-                                            String pruebaPedido = new String(pedidoFirmado);
-                                            Log.i("probando", pruebaPedido);
+                                            pruebaPedido = new String(Base64.getEncoder().encode(pedidoFirmado));
+
 
                                         } catch (NoSuchAlgorithmException | InvalidKeySpecException | InvalidKeyException | SignatureException e) {
                                             e.printStackTrace();
@@ -133,12 +134,9 @@ public class MainActivity extends AppCompatActivity {
                                         // 3. Enviar los datos
                                         try {
                                             Socket socket = new Socket(server, port);
-
                                             String id = UsuarioIdClave.first.toString();
-                                            String enviar = pedido + "campo:"+id +"campo:"+ pedidoFirmado.toString();
-
-                                            socket.getOutputStream().write(enviar.getBytes(StandardCharsets.UTF_8));
-
+                                            String enviar = pedido + "campo:"+id +"campo:"+ pruebaPedido;
+                                            socket.getOutputStream().write(enviar.getBytes());
                                             socket.close();
                                         } catch (Exception e) {
                                             Log.i("probando",e.toString());
