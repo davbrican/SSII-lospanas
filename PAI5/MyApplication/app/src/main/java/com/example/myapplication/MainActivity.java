@@ -12,8 +12,6 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
 import java.util.Hashtable;
 
-import javax.swing.text.View;
-
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.res.Resources;
@@ -23,6 +21,7 @@ import android.os.StrictMode;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;

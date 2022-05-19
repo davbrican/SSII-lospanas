@@ -69,7 +69,9 @@ class Main {
                 if(sg.verify(firmaBytes)){
                     System.out.println("Firma correcta");
                     System.out.println(pedido);
-                };
+                } else {
+                    System.out.println("Firma incorrecta");
+                }
 
 
             } catch (IOException e) {
