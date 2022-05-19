@@ -17,6 +17,7 @@ import android.widget.Toast;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.Signature;
@@ -108,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
                                     public void onClick(DialogInterface dialog, int whichButton) {
 
                                         // 1. Pedido
-                                        String pedido = "" + nCamas +" "+ nMesas+ " "+ nSillas+ " "+ nSillones+ " "+ UsuarioIdClave.first;
+                                        String pedido = nCamas +" "+ nMesas+ " "+ nSillas+ " "+ nSillones;
                                         // 2. Firmar los datos
                                         byte[] privateKeyBytes = Base64.getDecoder().decode(UsuarioIdClave.second.toString());
                                         PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(privateKeyBytes);
@@ -123,6 +124,8 @@ public class MainActivity extends AppCompatActivity {
                                             sg.update(pedido.getBytes());
                                             // Firma
                                             pedidoFirmado = sg.sign();
+                                            String pruebaPedido = new String(pedidoFirmado);
+                                            Log.i("probando", pruebaPedido);
 
                                         } catch (NoSuchAlgorithmException | InvalidKeySpecException | InvalidKeyException | SignatureException e) {
                                             e.printStackTrace();
@@ -130,7 +133,12 @@ public class MainActivity extends AppCompatActivity {
                                         // 3. Enviar los datos
                                         try {
                                             Socket socket = new Socket(server, port);
-                                            socket.getOutputStream().write(pedidoFirmado);
+
+                                            String id = UsuarioIdClave.first.toString();
+                                            String enviar = pedido + "campo:"+id +"campo:"+ pedidoFirmado.toString();
+
+                                            socket.getOutputStream().write(enviar.getBytes(StandardCharsets.UTF_8));
+
                                             socket.close();
                                         } catch (Exception e) {
                                             Log.i("probando",e.toString());
