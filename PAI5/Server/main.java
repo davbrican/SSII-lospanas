@@ -12,7 +12,7 @@ class Main {
 		ServerSocket serverSocket = null;
 		Socket socket = null;
 		try {
-			serverSocket = new ServerSocket(8080);
+			serverSocket = new ServerSocket(8081);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -22,7 +22,7 @@ class Main {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
+        System.out.println("Connection accepted");
 		InputStream input = null;
         BufferedReader buffer = null;
         DataOutputStream output = null;
