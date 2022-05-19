@@ -12,7 +12,7 @@ class Main {
 		ServerSocket serverSocket = null;
 		Socket socket = null;
 		try {
-			serverSocket = new ServerSocket(8081);
+			serverSocket = new ServerSocket(5350);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -29,7 +29,7 @@ class Main {
         try {
             input = socket.getInputStream();
             buffer = new BufferedReader(new InputStreamReader(input));
-            output = new DataOutputStream(socket.getOutputStream());
+            System.out.println(buffer.readLine());
         } catch (IOException e) {
             return;
         }
