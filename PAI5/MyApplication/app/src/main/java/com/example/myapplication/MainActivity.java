@@ -137,7 +137,9 @@ public class MainActivity extends AppCompatActivity {
                                             String id = UsuarioIdClave.first.toString();
                                             String enviar = pedido + "campo:"+id +"campo:"+ pedidoFirmado.toString();
 
-                                            socket.getOutputStream().write(enviar.getBytes(StandardCharsets.UTF_8));
+                                            socket.getOutputStream().write(pedidoFirmado);
+                                            String aEnviar = "///" + pedido + "///" + id;
+                                            socket.getOutputStream().write(aEnviar.getBytes());
 
                                             socket.close();
                                         } catch (Exception e) {

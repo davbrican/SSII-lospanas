@@ -50,13 +50,10 @@ class Main {
                 input = socket.getInputStream();
                 buffer = new BufferedReader(new InputStreamReader(input));
                 String receivedText = buffer.readLine();
-                String[] Campos = receivedText.split("campo:");
-                String pedido = Campos[0];
-                String id = Campos[1];
-                String firma = Campos[2];
-                System.out.println(firma);
-                String publicKey = Usuarios.get(Integer.parseInt(id));
+                System.out.println(receivedText);
 
+                String publicKey = Usuarios.get(Integer.parseInt(receivedText.split("///")[2]));
+                //System.out.println(publicKey);
                 byte[] publicKeyBytes = Base64.getDecoder().decode(publicKey);
                 X509EncodedKeySpec spec = new X509EncodedKeySpec(publicKeyBytes);
                 KeyFactory keyFactory = KeyFactory.getInstance("RSA");
@@ -65,12 +62,8 @@ class Main {
 
                 Signature sg = Signature.getInstance("SHA256withRSA");
                 sg.initVerify(publicKey2);
-                sg.update(pedido.getBytes());
-                // Verification de firma
-                //System.out.println(firma);
-                Byte ahora = Byte.parseByte(firma);
-                System.out.println(ahora.to);
-                //sg.verify(ahora);
+                sg.update(receivedText.split("///")[1].getBytes());
+                System.out.println(sg.verify(receivedText.split("///")[0].getBytes()));
 
             } catch (IOException e) {
                 return;
