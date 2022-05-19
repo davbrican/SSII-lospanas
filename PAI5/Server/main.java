@@ -12,40 +12,26 @@ class Main {
 		ServerSocket serverSocket = null;
 		Socket socket = null;
 		try {
-			serverSocket = new ServerSocket(5350);
+		    serverSocket = new ServerSocket(8081);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
-		try {
-			socket = serverSocket.accept();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-        System.out.println("Connection accepted");
-		InputStream input = null;
-        BufferedReader buffer = null;
-        DataOutputStream output = null;
-        try {
-            input = socket.getInputStream();
-            buffer = new BufferedReader(new InputStreamReader(input));
-            System.out.println(buffer.readLine());
-        } catch (IOException e) {
-            return;
-        }
-        String line;
         while (true) {
             try {
-                line = buffer.readLine();
-                if ((line == null) || line.equalsIgnoreCase("QUIT")) {
-                    socket.close();
-                    return;
-                } else {
-                    output.writeBytes(line + "\n\r");
-                    output.flush();
-                }
+                socket = serverSocket.accept();
             } catch (IOException e) {
                 e.printStackTrace();
+            }
+            System.out.println("Connection accepted");
+            InputStream input = null;
+            BufferedReader buffer = null;
+            try {
+                input = socket.getInputStream();
+                buffer = new BufferedReader(new InputStreamReader(input));
+                String receivedText = buffer.readLine();
+                System.out.println(receivedText);
+            } catch (IOException e) {
                 return;
             }
         }
