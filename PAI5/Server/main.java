@@ -12,11 +12,8 @@ import java.security.Signature;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Hashtable;
-import java.util.List;
-import java.util.StringTokenizer;
 
 
 
@@ -57,6 +54,7 @@ class Main {
                 System.out.println(firma);
 
                 String publicKey = Usuarios.get(Integer.parseInt(id));
+
                 byte[] publicKeyBytes = Base64.getDecoder().decode(publicKey);
                 byte[] firmaBytes = Base64.getDecoder().decode(firma);
 
@@ -72,6 +70,7 @@ class Main {
                     System.out.println("Firma correcta");
                     System.out.println(pedido);
                 };
+
 
             } catch (IOException e) {
                 return;

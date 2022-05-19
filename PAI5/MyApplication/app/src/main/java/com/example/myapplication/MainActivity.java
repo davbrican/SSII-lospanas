@@ -1,5 +1,19 @@
 package com.example.myapplication;
 
+import java.net.Socket;
+import java.security.InvalidKeyException;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.Signature;
+import java.security.SignatureException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.Base64;
+import java.util.Hashtable;
+
+import javax.swing.text.View;
+
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.res.Resources;
@@ -9,24 +23,11 @@ import android.os.StrictMode;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
-import android.view.View;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
-
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-
-import java.nio.charset.StandardCharsets;
-import java.security.InvalidKeyException;
-import java.security.KeyFactory;
-import java.security.Signature;
-import java.security.SignatureException;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.util.Base64;
-import java.util.Hashtable;
-import java.security.NoSuchAlgorithmException; import java.security.PrivateKey; import java.security.spec.InvalidKeySpecException;
-import java.net.*;
 
 
 
@@ -126,8 +127,6 @@ public class MainActivity extends AppCompatActivity {
                                             // Firma
                                             pedidoFirmado = sg.sign();
                                             pruebaPedido = new String(Base64.getEncoder().encode(pedidoFirmado));
-
-
                                         } catch (NoSuchAlgorithmException | InvalidKeySpecException | InvalidKeyException | SignatureException e) {
                                             e.printStackTrace();
                                         }
@@ -141,7 +140,6 @@ public class MainActivity extends AppCompatActivity {
                                         } catch (Exception e) {
                                             Log.i("probando",e.toString());
                                         }
-
                                         Toast.makeText(MainActivity.this, "Petición enviada correctamente", Toast.LENGTH_SHORT).show();
                                     }
                                 }

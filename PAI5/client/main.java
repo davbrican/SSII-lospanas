@@ -22,9 +22,10 @@ import java.io.*;
 class Main {
     public static void main(String[] args) {
         try {
-            int port = 8081;
+            int port = 5350;
             Socket socket = new Socket("127.0.0.1", port);
             socket.getOutputStream().write("Hello\n".getBytes());
+            socket.getOutputStream().write("Hello2\n".getBytes());
             socket.close();
         } catch (Exception e) {
             System.out.println("Exception in main: " + e.getMessage());
