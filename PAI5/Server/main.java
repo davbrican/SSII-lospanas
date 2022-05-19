@@ -17,35 +17,22 @@ class Main {
 			e.printStackTrace();
 		}
 		
-		try {
-			socket = serverSocket.accept();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-        System.out.println("Connection accepted");
-		InputStream input = null;
-        BufferedReader buffer = null;
-        DataOutputStream output = null;
-        try {
-            input = socket.getInputStream();
-            buffer = new BufferedReader(new InputStreamReader(input));
-            output = new DataOutputStream(socket.getOutputStream());
-        } catch (IOException e) {
-            return;
-        }
-        String line;
         while (true) {
             try {
-                line = buffer.readLine();
-                if ((line == null) || line.equalsIgnoreCase("QUIT")) {
-                    socket.close();
-                    return;
-                } else {
-                    output.writeBytes(line + "\n\r");
-                    output.flush();
-                }
+                socket = serverSocket.accept();
             } catch (IOException e) {
                 e.printStackTrace();
+            }
+            System.out.println("Connection accepted");
+            InputStream input = null;
+            BufferedReader buffer = null;
+            try {
+                input = socket.getInputStream();
+                buffer = new BufferedReader(new InputStreamReader(input));
+                String receivedText = buffer.readLine();
+                System.out.println(receivedText);
+                
+            } catch (IOException e) {
                 return;
             }
         }
