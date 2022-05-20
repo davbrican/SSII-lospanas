@@ -86,6 +86,7 @@ class Main {
         while (true) {
             try {
                 socket = serverSocket.accept();
+                Boolean pedidoFallido = false;
                 /*
                 if(noSimulacro){
                     String ipCliente = socker.getInetAddress().getHostAddress();
@@ -94,6 +95,7 @@ class Main {
                     for(int i = 0; i < ips.size(); i++){
                         if(ips.get(i).get(0).equals(ipCliente)){
                             socket.close();
+                            pedidoFallido = true;
                         }
                     }
                     if(!encontrado){
@@ -129,6 +131,7 @@ class Main {
                             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
                             out.println("Número de objetos incorrecto");
                             out.close();
+                            pedidoFallido = true;
                         }
                     }
                 }
