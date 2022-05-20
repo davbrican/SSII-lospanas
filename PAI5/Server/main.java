@@ -26,6 +26,7 @@ import java.io.PrintWriter;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.time.*;
+//import pair.pair;
 
 class Main {
     static Hashtable<Integer, String> Usuarios = new Hashtable<Integer, String>(){{
@@ -51,6 +52,21 @@ class Main {
     }};    
 
     public static void main(String[] args) throws SignatureException, NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException {
+        
+        ArrayList<ArrayList<String>> ips = new ArrayList<ArrayList<String>>();
+
+        new Timer().scheduleAtFixedRate(new TimerTask(){
+            @Override
+            public void run(){
+                for(int i = 0; i < ips.size(); i++){
+                    LocalDateTime stamp = LocalDateTime.parse(ips.get(i).get(1));
+                    System.out.println(stamp);
+                    if(Duration.between(stamp, LocalDateTime.now()).getSeconds() > 10L){
+                        ips.remove(i);
+                    }
+                }
+            }
+        },0,5000);
 
         ArrayList<Float> ratios = new ArrayList<Float>();
 
@@ -69,13 +85,23 @@ class Main {
 		
         while (true) {
             try {
+                /*
+                if(noSimulacro){
+                    String ipCliente = serverSocket.getLocalSocketAddress().toString();
+                    LocalDateTime ahora = LocalDateTime.now();
+                    String a = array.find(a => a.getKey() === ipCliente);
+                    if(a==null){
+                        ips.add(new Pair<String,LocalDateTime>(ipCliente,ahora));
+                    }else{
+                        socket.close();
+                    }
+                }
+                */
                 socket = serverSocket.accept();
             } catch (IOException e) {
                 e.printStackTrace();
             }
             System.out.println("\nConnection accepted");
-            System.out.println(socket.getInetAddress());
-            System.out.println(socket.getPort());
 
             InputStream input = null;
             BufferedReader buffer = null;
