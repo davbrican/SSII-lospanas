@@ -84,9 +84,10 @@ class Main {
 		}
 		
         while (true) {
+            Boolean pedidoFallido;
             try {
                 socket = serverSocket.accept();
-                Boolean pedidoFallido = false;
+                pedidoFallido = false;
                 /*
                 if(noSimulacro){
                     String ipCliente = socker.getInetAddress().getHostAddress();
