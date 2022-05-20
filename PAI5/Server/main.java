@@ -89,9 +89,9 @@ class Main {
                 if(noSimulacro){
                     String ipCliente = serverSocket.getLocalSocketAddress().toString();
                     LocalDateTime ahora = LocalDateTime.now();
-                    String a = array.find(a => a.getKey() === ipCliente);
+                    String a = array.find(a => a.get(0) === ipCliente);
                     if(a==null){
-                        ips.add(new Pair<String,LocalDateTime>(ipCliente,ahora));
+                        ips.add(new ArrayList<String>(Arrays.asList(ipCliente, ahora.toString())));
                     }else{
                         socket.close();
                     }
