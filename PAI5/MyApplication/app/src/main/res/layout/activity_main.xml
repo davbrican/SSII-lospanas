@@ -136,6 +136,12 @@
             android:layout_gravity="center"
             android:layout_marginTop="30dp"
             android:text="Enviar" />
+
+        <Switch
+            android:id="@+id/switch1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Simulacro de mes" />
     </LinearLayout>
 
 </RelativeLayout>

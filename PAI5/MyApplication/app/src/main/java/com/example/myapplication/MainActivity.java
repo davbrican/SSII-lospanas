@@ -24,6 +24,7 @@ import android.util.Pair;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.Toast;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
@@ -74,6 +75,9 @@ public class MainActivity extends AppCompatActivity {
         EditText sillas = (EditText) findViewById(R.id.sillas);
         EditText sillones = (EditText) findViewById(R.id.sillones);
         Spinner usuario = (Spinner) findViewById(R.id.usuario);
+        Switch simularMes = (Switch) findViewById(R.id.switch1);
+        Boolean switchState = simularMes.isChecked();
+        Log.d("simulacroActivado", switchState.toString());
 
         Boolean condicion = TextUtils.isEmpty(camas.getText().toString()) || TextUtils.isEmpty(mesas.getText().toString()) || TextUtils.isEmpty(sillas.getText().toString()) || TextUtils.isEmpty(sillones.getText().toString());
 
