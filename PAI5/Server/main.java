@@ -85,19 +85,23 @@ class Main {
 		
         while (true) {
             try {
+                socket = serverSocket.accept();
                 /*
                 if(noSimulacro){
-                    String ipCliente = serverSocket.getLocalSocketAddress().toString();
+                    String ipCliente = socker.getInetAddress().getHostAddress();
                     LocalDateTime ahora = LocalDateTime.now();
-                    String a = array.find(a => a.get(0) === ipCliente);
-                    if(a==null){
+                    Boolean encontrado = false;
+                    for(int i = 0; i < ips.size(); i++){
+                        if(ips.get(i).get(0).equals(ipCliente)){
+                            socket.close();
+                        }
+                    }
+                    if(!encontrado){
                         ips.add(new ArrayList<String>(Arrays.asList(ipCliente, ahora.toString())));
-                    }else{
-                        socket.close();
                     }
                 }
                 */
-                socket = serverSocket.accept();
+                
             } catch (IOException e) {
                 e.printStackTrace();
             }
