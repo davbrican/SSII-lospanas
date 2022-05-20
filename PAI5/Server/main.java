@@ -48,12 +48,7 @@ class Main {
     }};    
 
     public static void main(String[] args) throws SignatureException, NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException {
-		/*
-        HashMap <Integer, Float> ratios = new HashMap<Integer, Float>();
-        HashMap <Integer, String> tendencias = new HashMap<Integer, String>();
-        */
 
-        
         ArrayList<Float> ratios = new ArrayList<Float>();
 
         Integer totalPedidos = 0;
@@ -83,9 +78,12 @@ class Main {
                 buffer = new BufferedReader(new InputStreamReader(input));
                 String receivedText = buffer.readLine();
                 String[] Campos = receivedText.split("campo:");
-
+                String pedido = Campos[0];
+                String id = Campos[1];
+                String firma = Campos[2];
+                String numeroPedidosMaxMes = Campos[3];
+                
                 if (Integer.parseInt(numeroPedidosMaxMes) == 0) {
-                    String pedido = Campos[0];
                     String[] pedidosArray = pedido.split(" ");
                     for (String objeto : pedidosArray) {
                         Integer obj = Integer.parseInt(objeto);
@@ -97,10 +95,6 @@ class Main {
                         }
                     }
                 }
-
-                String id = Campos[1];
-                String firma = Campos[2];
-                String numeroPedidosMaxMes = Campos[3];
 
                 String publicKey = Usuarios.get(Integer.parseInt(id));
 
@@ -121,8 +115,18 @@ class Main {
                     if (Integer.parseInt(numeroPedidosMaxMes) != 0) {
                         pedidosCorrectos++;
                     }
+                    if (Integer.parseInt(numeroPedidosMaxMes) != 0) {
+                        PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+                        out.println("Firma correcta");
+                        out.close();
+                    }
                 } else {
                     System.out.println("Firma incorrecta");
+                    if (Integer.parseInt(numeroPedidosMaxMes) != 0) {
+                        PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+                        out.println("Firma incorrecta");
+                        out.close();
+                    }
                 }
                 if (Integer.parseInt(numeroPedidosMaxMes) != 0) {
                     totalPedidos++;
