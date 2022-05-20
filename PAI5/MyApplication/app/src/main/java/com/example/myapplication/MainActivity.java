@@ -181,9 +181,12 @@ public class MainActivity extends AppCompatActivity {
                                             } else {
                                                 Socket socket = new Socket(server, port);
                                                 String id = UsuarioIdClave.first.toString();
-                                                String enviar = pedido + "campo:"+id +"campo:"+ pruebaPedido+"campo:0";
+                                                String enviar = pedido + "campo:"+id +"campo:"+ pruebaPedido+"campo:0\n";
                                                 socket.getOutputStream().write(enviar.getBytes());
-                                                
+                                                BufferedReader input;
+                                                input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                                                String message = input.readLine();
+                                                Log.d("message", message);
                                                 socket.close();
                                             }
 

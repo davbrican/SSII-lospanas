@@ -24,9 +24,17 @@ class Main {
         try {
             int port = 5350;
             Socket socket = new Socket("127.0.0.1", port);
-            socket.getOutputStream().write("Hello\n".getBytes());
-            socket.getOutputStream().write("Hello2\n".getBytes());
+            String enviar = "Hello\n";
+            socket.getOutputStream().write(enviar.getBytes());
+
+
+            BufferedReader input;
+            input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            String message = input.readLine();
+
+            System.out.println(message.toString());
             socket.close();
+            
         } catch (Exception e) {
             System.out.println("Exception in main: " + e.getMessage());
         }

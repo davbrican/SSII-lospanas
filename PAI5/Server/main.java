@@ -71,6 +71,9 @@ class Main {
                 e.printStackTrace();
             }
             System.out.println("\nConnection accepted");
+            System.out.println(socket.getInetAddress());
+            System.out.println(socket.getPort());
+
             InputStream input = null;
             BufferedReader buffer = null;
             try {
@@ -82,6 +85,7 @@ class Main {
                 String id = Campos[1];
                 String firma = Campos[2];
                 String numeroPedidosMaxMes = Campos[3];
+                System.out.println(numeroPedidosMaxMes);
                 
                 if (Integer.parseInt(numeroPedidosMaxMes) == 0) {
                     String[] pedidosArray = pedido.split(" ");
@@ -115,14 +119,14 @@ class Main {
                     if (Integer.parseInt(numeroPedidosMaxMes) != 0) {
                         pedidosCorrectos++;
                     }
-                    if (Integer.parseInt(numeroPedidosMaxMes) != 0) {
+                    if (Integer.parseInt(numeroPedidosMaxMes) == 0) {
                         PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
                         out.println("Firma correcta");
                         out.close();
                     }
                 } else {
                     System.out.println("Firma incorrecta");
-                    if (Integer.parseInt(numeroPedidosMaxMes) != 0) {
+                    if (Integer.parseInt(numeroPedidosMaxMes) == 0) {
                         PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
                         out.println("Firma incorrecta");
                         out.close();
