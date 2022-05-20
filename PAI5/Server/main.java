@@ -24,8 +24,12 @@ class Main {
         put(3,"MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA2RQQYtAasAv8UKudiRFgcfZn+U3r0CjBD19bk/ibCsEgaXtuF7jxwnbVEuYFitZpo+yVemB6NuR2cth6XplJyww5TP1HSSZdGYSWxPsOI93fGSUNp0n/e5T+pGBA/ldPZ601DZbAJiCV93P00A9/CiFPQsAAi6oYVHkeTIffNAFivGq78+WYC99iavRAfGc+Fvf036Tp9MTZ6EbhF1lWOUG8yc+788sYaYOmntugOWMyWgKCQ0U26iW+0DEUyUTRVQ53oruVEHO6XLI962WE++lO2aVMvqnn1bsZi73mA5fdiWI3ECb25mILP9R3MK8LHwo3sWWg0GFdItYDqmQM4QIDAQAB");
     }};
 
+
     public static void main(String[] args) throws SignatureException, NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException {
 		
+        Integer totalPedidos = 0;
+        Integer pedidosCorrectos = 0;
+        
 		ServerSocket serverSocket = null;
 		Socket socket = null;
 		try {
@@ -51,7 +55,8 @@ class Main {
                 String pedido = Campos[0];
                 String id = Campos[1];
                 String firma = Campos[2];
-                System.out.println(firma);
+                String numeroMes = Campos[3];
+                System.out.println("numeroMes: " + numeroMes);
 
                 String publicKey = Usuarios.get(Integer.parseInt(id));
 
@@ -69,11 +74,13 @@ class Main {
                 if(sg.verify(firmaBytes)){
                     System.out.println("Firma correcta");
                     System.out.println(pedido);
+                    pedidosCorrectos++;
                 } else {
                     System.out.println("Firma incorrecta");
                 }
+                totalPedidos++;
 
-
+                System.out.println("Pedidos correctos: " + pedidosCorrectos + " de " + totalPedidos);
             } catch (IOException e) {
                 return;
             }

@@ -11,6 +11,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
 import java.util.Hashtable;
+import java.util.Random;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -40,6 +41,9 @@ public class MainActivity extends AppCompatActivity {
     protected static final Pair<Integer, String> UsuarioN2 = new Pair<>(2, "MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQC8E2ZaPGk2Cq4EF/hfh9MJX/nLi4J9TiGO+fC5cTGy7uGbFsMKeceRU2LE3Ktjpx89MSVh49C3L/C3I6CCvZ43SWPzx9fb2P44j6NzCOgPhdjOv5bhMgO092y8rEH1cEjiRIWB40K1zBseE7dVxchQmcUnyLOhhGIrgquZe7mzOCq3TdFGuX2UqBBXerWDehEAi72KL9mh8D0+HJgFgH/+GGlRg9gT28tj3p90M9yZqEV4rFK9Zi7p/9wk8SJrqYVd987Rq03cHc+MnCUBAvCxE8Mi7TAugpLgWxyhC1osaCp/CN/GnTe9+/zONk3/yrrHNsV/uNHjlJDmZOdyT5ipAgMBAAECggEADcpJBvTHAh9mWFvUP6zwhw9yfBTj9yweFHhfHjnJMHAzj/DrUX6nE2YkfSrGUQLqrMydtmpt3gC14GJ3B8m/gBjxgJPL+rgTwTHxr3hHtluqD1Qc9rDOyhtvmFCecCX7h3EJbldWMjOftA+IsdFUDr+M+o3MyLBcQl8ia0Psfyd5SSBauleuM6zTK1wJ6yOEXdVOld9Jp/5WcPwiAkeOjzP45Pd9Rop9y2oESFXlzwEHTWcfTn599cQigbOypOCCTAtRjPX3hkK+U1M6wEr80gER6+olQlwyJbYzXpiXUWJhHL8uVL5YAlaSHviwx6jAU2dpbRVKoAcKVP/+yXc4wQKBgQC9dbGk9eAHziXFh810yGZiXV1X3jvyfH9NsMOYNZ+W1QCb+5EWg3qoo54kkF7sQPPDYZN+D7dVBieV3ZLwjW7Ft9VtgxG3O78CV8nv0BdJLev+WFyzm4eoBgq5GUynzAFg0p9OWHnRDwJ+UYdNIhaNVfCY5SWxAqguaPfPkVeNvwKBgQD+IUYpMFSZ0rUSHiN0D1DL1KwsQBjdYdGfdsOsFCDLiP5eDJ9jDdWugwg9G9TA64UBv2KYbZZSIj3WBWdW6pAsXqkvbXQg6fscuSRsaJaRy2+6cGvFf0w44vYezLghgfr4UTEBKvoXYA/8oQtbxMLPmcbE8QSnRbNKjMmEeu5DlwKBgF/mNB5Qyq6IvXvH6sqDKbf+lGIGvodWV0XnBIqGEhrSBHXwF5eyw6Ka91CAt1uU4Q5z1KmJoP3rmJv2RQt4O6rfC6xcHNqH5n50G2ZFCZRkJ0FeTsYnIrp9HG5nDPMeg1AULMkGZdrZYyS3deooKAwwhRGPY82+j4y2W0F4yz2XAoGAezJwS+l1Kfke9MCNmWcPWTEpom4UX8ZbE/5ET7iWSXWJMtjVr/R2AZreNJm4YyoKGdXJG3IM7JZS+d02wskFyay+QhLCuG4V4U/T24Y8cEN6T5zOcjkLH4zPmhDOttfHbfgWVKWcBhb4yRTdZ8iUVIYM+U6KXfkJOPvVeZcKyNMCgYBoza2ysac8VaBidA4+gj5Ygl0kFdmyKiuf+CVQaXXkV7gJc7ElIDfFDAaDNjD1fbjSea8eDTDrD0acQniUOFWA7Vtxdb4nOGI62rb9qGgHMp6cCjfpfiey8BHow21pXPbVD6KscmNg3Dcy9pIG1DUpiwJaK4HL2SInJxnRWCAhVw==");
     protected static final Pair<Integer, String> UsuarioN3 = new Pair<>(3, "MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDZFBBi0BqwC/xQq52JEWBx9mf5TevQKMEPX1uT+JsKwSBpe24XuPHCdtUS5gWK1mmj7JV6YHo25HZy2HpemUnLDDlM/UdJJl0ZhJbE+w4j3d8ZJQ2nSf97lP6kYED+V09nrTUNlsAmIJX3c/TQD38KIU9CwACLqhhUeR5Mh980AWK8arvz5ZgL32Jq9EB8Zz4W9/TfpOn0xNnoRuEXWVY5QbzJz7vzyxhpg6ae26A5YzJaAoJDRTbqJb7QMRTJRNFVDneiu5UQc7pcsj3rZYT76U7ZpUy+qefVuxmLveYDl92JYjcQJvbmYgs/1HcwrwsfCjexZaDQYV0i1gOqZAzhAgMBAAECggEAAoAzrB+/nvWUY42GlBSqKsXu7rVSGSTPDJFJqcu8ZYRSDkUIwKc1ycq6q6wQtkfAEc5g7nb8EXPSVYJe7oYPjpJGereUQah6fBfF8OD/ibQ9pLmDjcDRe6f8wwIE3ak91fDt4okxD39imuYwFNGI4iH+GsPBfdpoy1hV3AXYsW2pOaUCfnXCoNgUtIxOrMvbg80mkBONOIt8d9JcD3mehBWm5y5OQ3CY+2LQwQwBzABNPLZQdxIyTNXe2YxUNAJzmIkiPwf+BDeONfvF1b9QWzYdbOUFd/7XwEXiwYf96X5CbdXsNX8YLTmNV3vHqIqPPZTEP0qc2D3n/8jcBHVGzQKBgQDxgm1LuejCNvtAVsEtONrc1++robvcvdnOBmXCMCF8+3u6sgm1WzHnz7hng5HxpHxz2OeXwICqpC73yNv+MHx1Fxt8HF4DbhNmGu4X75o7GGWuX2kHfCnvF4quVrjfdTnXeX4/CGsmWh68PIWa01Q53aL5LadOPX9FXIzbXUnd9wKBgQDmGmBmkr0PROJAYdfJ/S4DGYI6lbEA+aUxaj6+qZ2S0Ij6sJ/mIaGGDXyIu2lEycNmVzZSIuzFkNdZtIm6l+HssPyM7mFIUtbcCteJfqAw9VNDOq1lzhefhwscZpwaDtFVtkGJsH0yboQ38aKQTa77QLkE2kEok/weqSxnQtSV5wKBgQCkwLkWw8iJVUCpb4Vw+Cw2JAkYKMkjmVAQQEUC6BqwTE7n2bTNx1yQKyA9XYAePHu5++phl60uu7pexuNs0F7W8eCKFj/8TwdkzFJIeefZEJetEOFxfb6NoJ22uOp9ZlcDK5p4HaIbE7eL6i2qpSf8IbqgCgjsUv+TrcNZkpZlmQKBgGV4FDKnWr+0/KCvhN0JzJSJVyhGgnuPmw0jcO/bFCV92CnUYW62PehDYjtZiZ5P6t7ibo3h4M9ug8iHGIU0HOinU3dCV5vxC9aU4V88e5+bT1BCO9y8+SXcA0ZO6V+EUUOez1/MeCkZGy0gXTONTjB15iEBreIa//71UyNmESDZAoGBAIXhigFXhzDTDDrzQS6nzAAqZAMKFN8MIfRdJw+jXg5RUy9aMh10i5Srx+qhixlejoVtjM4dg0wslx3KTvWROoxt2HYW+VooykZ+nzPzj8RS1AdyjOFZBoH0ihVkgSBxlkMNtoQde2qA51LuA2TV5GMoWhH46InoVgbehmQshf4g");
 
+    Integer numMes = 1;
+    String strNumMes = numMes.toString();
+
     private static final Hashtable<String, Pair<Integer, String>> UsuariosID = new Hashtable<String, Pair<Integer, String>>(){{
        put("Usuario 1", UsuarioN1);
        put("Usuario 2", UsuarioN2);
@@ -67,6 +71,32 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private String pedidoDePrueba(String pedido, Spinner usuario) {
+        String Nusuario = usuario.getSelectedItem().toString();
+        final Pair UsuarioIdClave = UsuariosID.get(Nusuario);
+        byte[] privateKeyBytes = Base64.getDecoder().decode(UsuarioIdClave.second.toString());
+        PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(privateKeyBytes);
+        KeyFactory keyFactory;
+        byte[] pedidoFirmado = new byte[0];
+        String pruebaPedido = new String();
+
+        try {
+            keyFactory = KeyFactory.getInstance("RSA");
+            PrivateKey privateKey = keyFactory.generatePrivate(spec);
+            Signature sg = Signature.getInstance("SHA256withRSA");
+            sg.initSign(privateKey);
+            sg.update(pedido.getBytes());
+            // Firma
+            pedidoFirmado = sg.sign();
+            pruebaPedido = new String(Base64.getEncoder().encode(pedidoFirmado));
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException | InvalidKeyException | SignatureException e) {
+            e.printStackTrace();
+        }
+
+        return pruebaPedido;
+    }
+
     // Creación de un cuadro de dialogo para confirmar pedido
     private void showDialog() throws Resources.NotFoundException {
 
@@ -77,7 +107,6 @@ public class MainActivity extends AppCompatActivity {
         Spinner usuario = (Spinner) findViewById(R.id.usuario);
         Switch simularMes = (Switch) findViewById(R.id.switch1);
         Boolean switchState = simularMes.isChecked();
-        Log.d("simulacroActivado", switchState.toString());
 
         Boolean condicion = TextUtils.isEmpty(camas.getText().toString()) || TextUtils.isEmpty(mesas.getText().toString()) || TextUtils.isEmpty(sillas.getText().toString()) || TextUtils.isEmpty(sillones.getText().toString());
 
@@ -115,31 +144,52 @@ public class MainActivity extends AppCompatActivity {
                                         // 1. Pedido
                                         String pedido = nCamas +" "+ nMesas+ " "+ nSillas+ " "+ nSillones;
                                         // 2. Firmar los datos
-                                        byte[] privateKeyBytes = Base64.getDecoder().decode(UsuarioIdClave.second.toString());
-                                        PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(privateKeyBytes);
-                                        KeyFactory keyFactory;
-                                        byte[] pedidoFirmado = new byte[0];
-                                        String pruebaPedido = new String();
-
-                                        try {
-                                            keyFactory = KeyFactory.getInstance("RSA");
-                                            PrivateKey privateKey = keyFactory.generatePrivate(spec);
-                                            Signature sg = Signature.getInstance("SHA256withRSA");
-                                            sg.initSign(privateKey);
-                                            sg.update(pedido.getBytes());
-                                            // Firma
-                                            pedidoFirmado = sg.sign();
-                                            pruebaPedido = new String(Base64.getEncoder().encode(pedidoFirmado));
-                                        } catch (NoSuchAlgorithmException | InvalidKeySpecException | InvalidKeyException | SignatureException e) {
-                                            e.printStackTrace();
-                                        }
+                                        String pruebaPedido = pedidoDePrueba(pedido, usuario);
                                         // 3. Enviar los datos
                                         try {
-                                            Socket socket = new Socket(server, port);
-                                            String id = UsuarioIdClave.first.toString();
-                                            String enviar = pedido + "campo:"+id +"campo:"+ pruebaPedido;
-                                            socket.getOutputStream().write(enviar.getBytes());
-                                            socket.close();
+                                            if (switchState) {
+                                                int random_int = (int)Math.floor(Math.random()*(25-18+1)+18);
+                                                Log.d("Random_int: ", String.valueOf(random_int));
+                                                int i = 0;
+                                                while(i<random_int) {
+                                                    Socket socket = new Socket(server, port);
+                                                    String id = UsuarioIdClave.first.toString();
+                                                    int maxPed = 299;
+                                                    int minPed = 1;
+                                                    int nCam = (int)Math.floor(Math.random()*(maxPed-minPed+1)+minPed);
+                                                    int nMes = (int)Math.floor(Math.random()*(maxPed-minPed+1)+minPed);
+                                                    int nSil = (int)Math.floor(Math.random()*(maxPed-minPed+1)+minPed);
+                                                    int nSill = (int)Math.floor(Math.random()*(maxPed-minPed+1)+minPed);
+                                                    pedido = nCam +" "+ nMes+ " "+ nSil+ " "+ nSill;
+                                                    Log.d("pedido: ", pedido);
+                                                    boolean randomError = ((int)Math.floor(Math.random()*(100-0+1)+0) <= 7);
+                                                    Log.d("randomError: ", String.valueOf(randomError));
+                                                    Log.d("id",id);
+                                                    if (randomError) {
+                                                        if (id.equals("1")) id = "2";
+                                                        else if (id.equals("2")) id = "3";
+                                                        else if (id.equals("3")) id = "1";
+                                                    }
+                                                    pruebaPedido = pedidoDePrueba(pedido, usuario);
+                                                    Log.d("numMes", strNumMes);
+                                                    String enviar = pedido + "campo:"+id +"campo:"+ pruebaPedido+"campo:"+strNumMes;
+                                                    Log.d("enviar: ", enviar);
+                                                    socket.getOutputStream().write(enviar.getBytes());
+                                                    socket.close();
+                                                    i++;
+                                                }
+                                                Integer numeroDeMes = Integer.parseInt(strNumMes);
+                                                numeroDeMes ++;
+                                                strNumMes = numeroDeMes.toString();
+                                                //No se está modificando el numero de mes
+                                            } else {
+                                                Socket socket = new Socket(server, port);
+                                                String id = UsuarioIdClave.first.toString();
+                                                String enviar = pedido + "campo:"+id +"campo:"+ pruebaPedido+"campo:0";
+                                                socket.getOutputStream().write(enviar.getBytes());
+                                                socket.close();
+                                            }
+
                                         } catch (Exception e) {
                                             Log.i("probando",e.toString());
                                         }
