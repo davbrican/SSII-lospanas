@@ -83,17 +83,21 @@ class Main {
                 buffer = new BufferedReader(new InputStreamReader(input));
                 String receivedText = buffer.readLine();
                 String[] Campos = receivedText.split("campo:");
-                String pedido = Campos[0];
-                String[] pedidosArray = pedido.split(" ");
-                for (String objeto : pedidosArray) {
-                    Integer obj = Integer.parseInt(objeto);
-                    if (obj < 0 || obj > 300) {
-                        System.out.println("Número de objetos incorrecto");
-                        PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-                        out.println("Número de objetos incorrecto");
-                        out.close();
+
+                if (Integer.parseInt(numeroPedidosMaxMes) == 0) {
+                    String pedido = Campos[0];
+                    String[] pedidosArray = pedido.split(" ");
+                    for (String objeto : pedidosArray) {
+                        Integer obj = Integer.parseInt(objeto);
+                        if (obj < 0 || obj > 300) {
+                            System.out.println("Número de objetos incorrecto");
+                            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+                            out.println("Número de objetos incorrecto");
+                            out.close();
+                        }
                     }
                 }
+
                 String id = Campos[1];
                 String firma = Campos[2];
                 String numeroPedidosMaxMes = Campos[3];
@@ -151,9 +155,6 @@ class Main {
                         log = log + " Tendencia: 0";
                     }
 
-                    PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-                    out.println(log);
-                    out.close();
                     System.out.println("\n" + log);
 
                     String data = "";

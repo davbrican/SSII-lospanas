@@ -1,5 +1,6 @@
 package com.example.myapplication;
 
+import java.net.InetAddress;
 import java.net.Socket;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
@@ -151,8 +152,8 @@ public class MainActivity extends AppCompatActivity {
                                                 while(i<random_int) {
                                                     Socket socket = new Socket(server, port);
                                                     String id = UsuarioIdClave.first.toString();
-                                                    int maxPed = 299;
-                                                    int minPed = 1;
+                                                    int maxPed = 300;
+                                                    int minPed = 0;
                                                     int nCam = (int)Math.floor(Math.random()*(maxPed-minPed+1)+minPed);
                                                     int nMes = (int)Math.floor(Math.random()*(maxPed-minPed+1)+minPed);
                                                     int nSil = (int)Math.floor(Math.random()*(maxPed-minPed+1)+minPed);
