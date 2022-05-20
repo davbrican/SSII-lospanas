@@ -56,7 +56,7 @@ class Main {
             public void run(){
                 for(int i = 0; i < ips.size(); i++){
                     LocalDateTime stamp = LocalDateTime.parse(ips.get(i).get(1));
-                    if(Duration.between(stamp, LocalDateTime.now()).getSeconds() > 10L){
+                    if(Duration.between(stamp, LocalDateTime.now()).getSeconds() > 4800L){
                         ips.remove(i);
                     }
                 }
