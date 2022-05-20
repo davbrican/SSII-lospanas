@@ -17,8 +17,12 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Hashtable;
-
-
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+import java.io.PrintWriter;
 
 class Main {
     static Hashtable<Integer, String> Usuarios = new Hashtable<Integer, String>(){{
@@ -85,6 +89,9 @@ class Main {
                     Integer obj = Integer.parseInt(objeto);
                     if (obj < 0 || obj > 300) {
                         System.out.println("Número de objetos incorrecto");
+                        PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+                        out.println("Número de objetos incorrecto");
+                        out.close();
                     }
                 }
                 String id = Campos[1];
@@ -143,7 +150,31 @@ class Main {
                     } else {
                         log = log + " Tendencia: 0";
                     }
-                    System.out.println(log); // Guardar log en un txt
+
+                    PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+                    out.println(log);
+                    out.close();
+                    System.out.println("\n" + log);
+
+                    String data = "";
+                    try {
+                        File myObj = new File("logs.txt");
+                        Scanner myReader = new Scanner(myObj);
+                        while (myReader.hasNextLine()) {
+                          data = data + myReader.nextLine() + "\n";
+                        }
+                        myReader.close();
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+
+                    try {
+                        FileWriter myWriter = new FileWriter("logs.txt");
+                        myWriter.write(data + log);
+                        myWriter.close();
+                      } catch (IOException e) {
+                        e.printStackTrace();
+                      }
                     
                     ratios.add(ratioMes);
 
